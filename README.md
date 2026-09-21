@@ -70,7 +70,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **102 tests, ~1.4s**, plus 5 MCP conformance tests that run once the server exists:
+Complete and tested — **102 tests, ~1.4s**, plus 17 MCP conformance tests that run once the server exists:
 
 - [x] hand evaluator, cards, parsing
 - [x] equity oracle — enumerate and seeded sample
