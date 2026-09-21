@@ -10,6 +10,46 @@ and neither of which is cheap to re-run. Poker is arithmetic. `AcAd` against
 remaining board. That makes every grader here deterministic, every run
 reproducible, and re-grading free.
 
+## Results
+
+The same 75 cases, the same prompt, each model run unaided and then with the
+oracle available as MCP tools. Cases passed:
+
+| | equity | icm | range | all |
+|---|---|---|---|---|
+| gpt-4o-mini, unaided | 3/31 | 0/16 | 23/28 | **26/75** |
+| gpt-4o-mini, with tools | 31/31 | 16/16 | 28/28 | **75/75** |
+| claude-sonnet-5, unaided | 19/31 | 14/16 | 25/28 | **58/75** |
+| claude-sonnet-5, with tools | 31/31 | 15/16 | 28/28 | **74/75** |
+
+What the runs show:
+
+- **Unaided, the errors are large, not marginal.** gpt-4o-mini's equity answers
+  were 17.5 percentage points out on average. Re-scored at double the tolerance
+  (5pp), it passes 8 of 31 instead of 3; Sonnet 5 passes 20 instead of 19. The
+  thresholds are not what decides these numbers.
+- **The two models fail differently.** gpt-4o-mini answers at once and is wrong:
+  it split three equal stacks 400/240/160, and paid a single 1,000 prize out as
+  2,000 across three seats. Sonnet 5 is usually right, but on 9 cases it spent
+  its whole 16,000-token output budget working the arithmetic and never
+  answered: flops needing 990 boards, and five- and six-player ICM.
+- **The cheap model with tools beats the strong model without them**, 75 to 58.
+- **A model with tools does not always use them.** gpt-4o-mini called a tool on
+  all 75 cases. Sonnet 5 answered 9 of the 16 ICM cases by hand with the tool
+  available, and its one remaining failure is one of them: a five-player table it
+  tried to compute itself and ran out of budget on. How often a model reaches
+  for a tool is a separate number from how well it uses one, and the harness
+  reports both.
+
+Read these with their limits. Each figure is one run of 75 cases, so a
+difference of a case or two is noise. The tools return the oracle's own
+answers, so the with-tools rows measure tool *use* - choosing the tool, passing
+the cards correctly, reporting the result faithfully - rather than the oracle,
+whose correctness the unit tests establish against published values. Runs were
+made in September 2026; gpt-4o-mini at temperature 0, Sonnet 5 at its default
+sampling (it rejects a temperature) with adaptive thinking. The baselines behind
+every number are in `baselines/`.
+
 ## How it works
 
 ```
@@ -85,8 +125,7 @@ live stdio and check it against every case:
 - [x] MCP server exposing the oracle as tools, and a `--tools` mode that runs a
       model with them
 
-Next: run the same cases with the model unaided and with the tools available,
-and report the delta.
+- [x] the same cases run unaided and with tools, for two models (see Results)
 
 ## The oracle as MCP tools
 
