@@ -70,30 +70,63 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Built and tested (54 tests, ~1s):
+Complete and tested — **69 tests, ~1.4s**:
 
 - [x] hand evaluator, cards, parsing
 - [x] equity oracle — enumerate and seeded sample
 - [x] ICM oracle
 - [x] preflop range data
+- [x] 75-case dataset with frozen ground truth, self-auditing generator
 - [x] prompt building and two-tier reply parsing
 - [x] three graders, run summaries, baseline diffs
+- [x] runners: OpenAI, Anthropic, and a deterministic stub
+- [x] markdown reports, broken down by task and by kind of spot
 
-Not yet built:
-
-- [ ] case generator and a committed case set
-- [ ] model runners (OpenAI, Anthropic, and a deterministic stub)
-- [ ] report rendering
-
-No API key is needed for anything above, and none is read from anywhere but the
-environment. See `.env.example`.
+Next: an MCP server exposing the oracle as tools, so the same cases can run with
+the model unaided and with tools available, and the delta reported.
 
 ## Running
 
 ```bash
 npm install
-npm test
+npm test                      # 69 tests, no network
+npm run cases                 # regenerate cases/v1.jsonl from the specs
+npm run eval:stub             # the whole pipeline, no API key, no spend
 ```
+
+Against a real model:
+
+```bash
+cp .env.example .env          # then fill in a key; .env is gitignored
+node bin/eval.mjs --model openai:gpt-4o-mini --concurrency 6
+node bin/eval.mjs --model anthropic:claude-sonnet-5 --baseline baselines/stub-seed1.json
+```
+
+Re-grade a stored run without paying for it again:
+
+```bash
+node bin/eval.mjs --regrade runs/<file>.jsonl
+```
+
+`--save <path>` writes a baseline, `--strict` exits non-zero on any regression,
+and `docs/example-report.md` shows what the output looks like.
+
+### What a stub run proves
+
+The stub answers from the case's own ground truth, perturbed deterministically,
+so four properties are checkable with no network at all:
+
+| | |
+|---|---|
+| deterministic | same seed, byte-identical replies and an identical score |
+| baseline-clean | a run diffed against its own baseline reports zero regressions |
+| regression-sensitive | dropping the stub's skill from 0.8 to 0.55 surfaces 16 named regressions |
+| free to re-grade | `--regrade` reproduces a score exactly, with no API calls |
+
+It also imitates how models actually fail rather than failing randomly: some
+answers are rounded, some are confidently wrong, some ignore the JSON contract
+and answer in prose, and ICM answers sometimes chip-chop — which is precisely
+the mistake the ICM task exists to catch.
 
 ## Provenance
 

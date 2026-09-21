@@ -9,7 +9,7 @@
     "test:watch": "vitest",
     "cases": "node bin/build-cases.mjs",
     "eval": "node bin/eval.mjs",
-    "report": "node bin/report.mjs"
+    "eval:stub": "node bin/eval.mjs --model stub"
   },
   "devDependencies": {
     "vitest": "^3.0.0"

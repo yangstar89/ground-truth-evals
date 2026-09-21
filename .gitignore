@@ -9,3 +9,6 @@ node_modules/
 # Raw model responses. Kept out by default so a run cannot accidentally
 # publish anything; a curated baseline is committed under baselines/ instead.
 runs/
+
+# Generated reports. One example lives in docs/ instead.
+reports/
