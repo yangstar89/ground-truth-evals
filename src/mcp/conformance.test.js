@@ -159,8 +159,11 @@ describe.skipIf(!existsSync(SERVER))(`MCP server conformance (${SERVER})`, () =>
 
     it('rejects bad cards with a message that names the problem', async () => {
       expect(await refused('poker_equity', { hero: 'AcAd', opponents: ['AcKd'] })).toMatch(/duplicate/i);
-      expect(await refused('poker_equity', { hero: 'AcXd' })).toMatch(/Xd|card/i);
-      expect(await refused('poker_equity', { hero: 'AcAd', board: '2c 7d' })).toMatch(/board/i);
+      // One fault per call, so each message is checked for the fault it has.
+      expect(await refused('poker_equity', { hero: 'AcXd', opponents: ['KcKd'] })).toMatch(/Xd/);
+      expect(await refused('poker_equity', { hero: 'AcAd', board: '2c 7d', opponents: ['KcKd'] })).toMatch(/board/i);
+      expect(await refused('poker_equity', { hero: 'AcAd' })).toMatch(/opponent/i);
+      expect(await refused('poker_equity', { hero: 'AcAd', numOpponents: 2 })).toMatch(/num_opponents/);
       expect(await refused('poker_equity', { board: '2c 7d 9h' })).toMatch(/hero/);
     });
   });

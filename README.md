@@ -70,7 +70,8 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **102 tests, ~1.4s**, plus 17 MCP conformance tests that run once the server exists:
+Complete and tested — **124 tests**, including 17 that drive the MCP server over
+live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
 - [x] equity oracle — enumerate and seeded sample
@@ -81,15 +82,76 @@ Complete and tested — **102 tests, ~1.4s**, plus 17 MCP conformance tests that
 - [x] three graders, run summaries, baseline diffs
 - [x] runners: OpenAI, Anthropic, and a deterministic stub
 - [x] markdown reports, broken down by task and by kind of spot
+- [x] MCP server exposing the oracle as tools, and a `--tools` mode that runs a
+      model with them
 
-Next: an MCP server exposing the oracle as tools, so the same cases can run with
-the model unaided and with tools available, and the delta reported.
+Next: run the same cases with the model unaided and with the tools available,
+and report the delta.
+
+## The oracle as MCP tools
+
+`bin/mcp-server.mjs` serves the oracle over stdio to any MCP client:
+
+| Tool | Takes | Returns |
+|---|---|---|
+| `poker_equity` | `hero`, `board?`, `opponents?`, `num_opponents?`, `seed?` | `equity`, `equity_pct`, `method`, `exact`, `samples`, `seed?` |
+| `poker_icm` | `stacks`, `payouts` | `equities`, `pool`, `sums_to_pool` |
+| `poker_range_action` | `hand`, `position`, `scenario` | `action`, `frequencies`, `mixed`, `position`, `scenario` |
+
+Three decisions shape it:
+
+- **Descriptions tell a model when to call, not just what the tool does.** A
+  model reads them before deciding whether to calculate by hand, and the
+  unaided runs show what calculating by hand gets you.
+- **Every refusal says what would have been valid**, and comes back as a tool
+  result the model can read, not a protocol error it may never see: `unknown
+  position "LJ"; valid: UTG, HJ, CO, BTN, SB, BB.` One retry is enough.
+- **Equity samples where the eval would refuse.** The eval's `enumerateEquity`
+  throws past its cap because a case marked exact must be exact. A tool that
+  refuses is useless, so `poker_equity` samples instead and reports
+  `exact: false`, so an agent can tell a computed answer from an estimate.
+
+Install, after `npm install`, with the absolute path to this checkout:
+
+```bash
+# Claude Code
+claude mcp add poker-oracle -- node /path/to/poker-agent-evals/bin/mcp-server.mjs
+
+# Codex
+codex mcp add poker-oracle -- node /path/to/poker-agent-evals/bin/mcp-server.mjs
+```
+
+Cursor, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
+
+```json
+{
+  "mcpServers": {
+    "poker-oracle": {
+      "command": "node",
+      "args": ["/path/to/poker-agent-evals/bin/mcp-server.mjs"]
+    }
+  }
+}
+```
+
+Run the eval with the tools available to the model:
+
+```bash
+node bin/eval.mjs --model anthropic:claude-sonnet-5 --tools "node bin/mcp-server.mjs" \
+  --baseline baselines/anthropic-sonnet-5.json
+```
+
+The prompt is unchanged, so the tools are the only difference between that run
+and the unaided one. The tools return the oracle's own answers, so a with-tools
+run measures tool *use* - choosing the tool, passing the cards correctly,
+reporting the result faithfully - not the oracle, whose correctness the unit
+tests establish against published values.
 
 ## Running
 
 ```bash
 npm install
-npm test                      # 102 tests, no network
+npm test                      # 124 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```
