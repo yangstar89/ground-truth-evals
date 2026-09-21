@@ -67,6 +67,23 @@ export function renderMarkdown({ meta, summary, results, cases, diff }) {
     'worst error': `${num(b.maxError)}${b.unit ? ' ' + b.unit : ''}`,
   }))));
 
+  if (summary.overall.tools) {
+    out.push('## Tool use');
+    out.push('');
+    if (meta.tools) out.push(`Tools from \`${meta.tools.command}\`: ${meta.tools.names.map((n) => `\`${n}\``).join(', ')}.`);
+    out.push('A case that never called a tool was answered from the model\'s own');
+    out.push('arithmetic, with the tools available and unused.');
+    out.push('');
+    out.push(table(Object.entries(summary.byType).map(([type, b]) => ({
+      task: type,
+      n: b.n,
+      'used a tool': b.tools.casesUsingTools,
+      'never called one': b.n - b.tools.casesUsingTools,
+      calls: b.tools.calls,
+      'failed calls': b.tools.failedCalls,
+    }))));
+  }
+
   out.push('## By kind of spot');
   out.push('');
   out.push('Weakest first. This is the column that says what the model does not know.');
@@ -125,5 +142,7 @@ export function renderLine(meta, summary) {
   if (summary.overall.unparseable) parts.push(`unreadable x${summary.overall.unparseable}`);
   if (summary.overall.truncated) parts.push(`out of budget x${summary.overall.truncated}`);
   if (summary.overall.requestFailed) parts.push(`REQUEST FAILED x${summary.overall.requestFailed}`);
+  const t = summary.overall.tools;
+  if (t) parts.push(`tools used on ${t.casesUsingTools}/${summary.overall.n}, ${t.calls} calls, ${t.failedCalls} failed`);
   return parts.join('  ');
 }

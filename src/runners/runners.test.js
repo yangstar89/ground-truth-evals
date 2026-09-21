@@ -172,6 +172,93 @@ describe('api runners and models that reject temperature', () => {
   }
 });
 
+describe('the tool loop', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  /** A stand-in for an MCP connection: one tool, and a log of what it was asked. */
+  function fakeTools(reply = { text: '{"equity_pct": 82.6}', isError: false }) {
+    const asked = [];
+    return {
+      asked,
+      command: 'fake',
+      tools: [{ name: 'equity', description: 'exact equity', inputSchema: { type: 'object', properties: {} } }],
+      async call(name, args) {
+        asked.push({ name, args });
+        return reply;
+      },
+    };
+  }
+
+  /** Replies from a queue, keeping every request body for inspection. */
+  function scriptedApi(replies) {
+    const bodies = [];
+    vi.stubGlobal('fetch', async (url, init) => {
+      bodies.push(JSON.parse(init.body));
+      return new Response(JSON.stringify(replies.shift()), { status: 200 });
+    });
+    return bodies;
+  }
+
+  const openaiToolCall = (id = 'c1') => ({
+    choices: [{ finish_reason: 'tool_calls', message: { role: 'assistant', content: null, tool_calls: [{ id, type: 'function', function: { name: 'equity', arguments: '{"hero":"AcAd"}' } }] } }],
+    usage: { prompt_tokens: 10, completion_tokens: 5 },
+  });
+  const openaiAnswer = { choices: [{ finish_reason: 'stop', message: { content: '{"equity_pct": 82.6}' } }], usage: { prompt_tokens: 20, completion_tokens: 6 } };
+
+  const thinking = { type: 'thinking', thinking: '', signature: 'sig' };
+  const anthropicToolCall = (id = 't1') => ({
+    stop_reason: 'tool_use',
+    content: [thinking, { type: 'tool_use', id, name: 'equity', input: { hero: 'AcAd' } }],
+    usage: { input_tokens: 10, output_tokens: 5 },
+  });
+  const anthropicAnswer = { stop_reason: 'end_turn', content: [{ type: 'text', text: '{"equity_pct": 82.6}' }], usage: { input_tokens: 20, output_tokens: 6 } };
+
+  it('openai: runs the call, sends the result back, and returns the final answer with the call recorded', async () => {
+    const tools = fakeTools();
+    const bodies = scriptedApi([openaiToolCall(), openaiAnswer]);
+    const res = await createOpenAIRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt');
+    expect(res.text).toBe('{"equity_pct": 82.6}');
+    expect(tools.asked).toEqual([{ name: 'equity', args: { hero: 'AcAd' } }]);
+    expect(res.toolCalls).toHaveLength(1);
+    expect(bodies[1].messages.at(-1)).toEqual({ role: 'tool', tool_call_id: 'c1', content: '{"equity_pct": 82.6}' });
+    // Usage covers both requests, or a with-tools run would look cheaper than it was.
+    expect(res.usage).toMatchObject({ prompt_tokens: 30, completion_tokens: 11 });
+  });
+
+  it('anthropic: runs the call and returns the turn intact, thinking blocks included', async () => {
+    const tools = fakeTools();
+    const bodies = scriptedApi([anthropicToolCall(), anthropicAnswer]);
+    const res = await createAnthropicRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt');
+    expect(res.text).toBe('{"equity_pct": 82.6}');
+    expect(bodies[1].messages[1]).toEqual({ role: 'assistant', content: anthropicToolCall().content });
+    expect(bodies[1].messages[2].content).toEqual([{ type: 'tool_result', tool_use_id: 't1', content: '{"equity_pct": 82.6}' }]);
+    expect(res.usage).toMatchObject({ input_tokens: 30, output_tokens: 11 });
+  });
+
+  it('shows a failing tool to the model as an error it can correct, not a crash', async () => {
+    const tools = fakeTools({ text: 'duplicate card across hands and board', isError: true });
+    const bodies = scriptedApi([anthropicToolCall(), anthropicAnswer]);
+    const res = await createAnthropicRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt');
+    expect(bodies[1].messages[2].content[0]).toMatchObject({ is_error: true });
+    expect(res.toolCalls[0].isError).toBe(true);
+  });
+
+  it('abandons a model that keeps calling tools, keeping the calls it made', async () => {
+    const tools = fakeTools();
+    scriptedApi(Array.from({ length: 20 }, (_, i) => openaiToolCall(`c${i}`)));
+    const err = await createOpenAIRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt').catch((e) => e);
+    expect(err).toBeInstanceOf(TruncatedError);
+    expect(err.toolCalls.length).toBeGreaterThan(0);
+  });
+
+  it('sends no tools and records no tool calls on an unaided run', async () => {
+    const bodies = scriptedApi([openaiAnswer]);
+    const res = await createOpenAIRunner({ apiKey: 'test', temperature: null }).complete(equityCase, 'prompt');
+    expect(bodies[0].tools).toBeUndefined();
+    expect(res.toolCalls).toBeUndefined();
+  });
+});
+
 describe('errors that end a run', () => {
   afterEach(() => vi.unstubAllGlobals());
 

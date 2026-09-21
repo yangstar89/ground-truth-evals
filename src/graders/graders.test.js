@@ -244,6 +244,23 @@ describe('grading a run row that holds an error instead of a reply', () => {
   });
 });
 
+describe('tool use in a run', () => {
+  const answer = '{"equity_pct": 91.3}';
+
+  it('says nothing about tools on an unaided run, so "no calls" never reads as "no tools"', () => {
+    const s = summarise([gradeRow(equityCase, { id: 'eq-1', text: answer })]).overall;
+    expect(s.tools).toBeUndefined();
+  });
+
+  it('counts the cases that never called a tool, and the calls that failed', () => {
+    const s = summarise([
+      gradeRow(equityCase, { id: 'eq-1', text: answer, toolCalls: [{ name: 'equity', isError: true }, { name: 'equity', isError: false }] }),
+      gradeRow(equityCase, { id: 'eq-1', text: answer, toolCalls: [] }),
+    ]).overall;
+    expect(s.tools).toEqual({ casesUsingTools: 1, calls: 2, failedCalls: 1 });
+  });
+});
+
 describe('diffRuns', () => {
   const baseline = [
     { id: 'a', type: 'equity', pass: true },

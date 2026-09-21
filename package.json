@@ -13,5 +13,8 @@
   },
   "devDependencies": {
     "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
   }
 }

@@ -13,9 +13,9 @@ export function createRunner(spec, opts = {}) {
     case 'stub':
       return createStubRunner({ seed: opts.seed ?? 1, skill: opts.skill ?? 0.8 });
     case 'openai':
-      return createOpenAIRunner({ ...(model ? { model } : {}), temperature: opts.temperature ?? 0 });
+      return createOpenAIRunner({ ...(model ? { model } : {}), temperature: opts.temperature ?? 0, tools: opts.tools ?? null });
     case 'anthropic':
-      return createAnthropicRunner({ ...(model ? { model } : {}), temperature: opts.temperature ?? 0 });
+      return createAnthropicRunner({ ...(model ? { model } : {}), temperature: opts.temperature ?? 0, tools: opts.tools ?? null });
     default:
       throw new Error(`unknown runner "${spec}"; expected stub, openai:<model> or anthropic:<model>`);
   }

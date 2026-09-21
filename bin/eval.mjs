@@ -6,6 +6,7 @@
  *   node bin/eval.mjs --model openai:gpt-4o-mini --concurrency 6
  *   node bin/eval.mjs --model stub --baseline baselines/stub.json
  *   node bin/eval.mjs --regrade runs/2026-09-21T12-00-00-stub.jsonl
+ *   node bin/eval.mjs --model anthropic:claude-sonnet-5 --tools "node bin/mcp-server.mjs"
  *
  * Every raw reply is written to runs/ before grading. That ordering is on
  * purpose: grading is free and repeatable, model calls are neither, so a
@@ -19,6 +20,7 @@ import { gradeRow, summarise, diffRuns } from '../src/graders/index.js';
 import { renderMarkdown, renderLine } from '../src/report.js';
 import { mapLimit, isFatal } from '../src/runners/http.js';
 import { TruncatedError } from '../src/runners/api.js';
+import { connectTools } from '../src/runners/tools.js';
 import { loadEnv } from '../src/env.js';
 
 // Before any runner is constructed, so a key in .env is found.
@@ -72,15 +74,28 @@ async function main() {
       model: header?.meta?.model ?? 'unknown (regrade)',
       temperature: header?.meta?.temperature ?? null,
       promptVersion: header?.meta?.promptVersion ?? 'unknown',
+      ...(header?.meta?.tools ? { tools: header.meta.tools } : {}),
       durationMs: 0,
       regradedFrom: basename(path),
     };
     console.log(`regrading ${runRows.length} stored replies from ${basename(path)} — no API calls`);
   } else {
+    // With --tools, the model is handed a real MCP server's tools. The prompt
+    // is unchanged, so the tools are the only difference between two runs.
+    let tools = null;
+    if (args.tools) {
+      if (String(args.model).startsWith('stub')) {
+        console.error('--tools needs a real model; the stub answers from ground truth and would never call one.');
+        process.exit(2);
+      }
+      tools = await connectTools(String(args.tools));
+      console.log(`tools from "${tools.command}": ${tools.tools.map((t) => t.name).join(', ')}`);
+    }
     const runner = createRunner(args.model, {
       seed: args.seed,
       skill: args.skill,
       temperature: args.temperature,
+      tools,
     });
     console.log(`${runner.name}: ${cases.length} cases, concurrency ${args.concurrency}`);
 
@@ -94,7 +109,13 @@ async function main() {
       const t0 = Date.now();
       try {
         const res = await runner.complete(kase, prompt);
-        return { id: kase.id, text: res.text, ms: Date.now() - t0, usage: res.usage ?? null };
+        return {
+          id: kase.id,
+          text: res.text,
+          ms: Date.now() - t0,
+          usage: res.usage ?? null,
+          ...(res.toolCalls ? { toolCalls: res.toolCalls } : {}),
+        };
       } catch (e) {
         if (isFatal(e)) fatal ??= e;
         // Any other failed call is data, not a crash: record it, and why, so
@@ -106,6 +127,7 @@ async function main() {
           ms: Date.now() - t0,
           error: String(e.message ?? e),
           errorKind: e instanceof TruncatedError ? 'truncated' : 'request',
+          ...(tools ? { toolCalls: e.toolCalls ?? [] } : {}),
         };
       } finally {
         done++;
@@ -115,6 +137,7 @@ async function main() {
       }
     });
     process.stdout.write('\n');
+    await tools?.close();
 
     if (fatal) {
       // Nothing is written: there is no model behaviour here to keep or grade.
@@ -129,6 +152,7 @@ async function main() {
       promptVersion: PROMPT_VERSION,
       durationMs: Date.now() - started,
       cases: basename(args.cases),
+      ...(tools ? { tools: { command: tools.command, names: tools.tools.map((t) => t.name) } } : {}),
     };
     runRows = replies;
 

@@ -70,7 +70,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **95 tests, ~1.4s**:
+Complete and tested — **102 tests, ~1.4s**, plus 5 MCP conformance tests that run once the server exists:
 
 - [x] hand evaluator, cards, parsing
 - [x] equity oracle — enumerate and seeded sample
@@ -89,7 +89,7 @@ the model unaided and with tools available, and the delta reported.
 
 ```bash
 npm install
-npm test                      # 95 tests, no network
+npm test                      # 102 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```

@@ -144,6 +144,22 @@ function errorKindOf(row) {
  * account with no credits once came out as "0/75, unreadable x75".
  */
 export function gradeRow(kase, row) {
+  return { ...gradeReply(kase, row), ...toolUse(row) };
+}
+
+/**
+ * How a with-tools row used its tools. Absent entirely on an unaided run, so
+ * "made no calls" and "had no tools to call" never look the same.
+ */
+function toolUse(row) {
+  if (!Array.isArray(row.toolCalls)) return {};
+  return {
+    toolCalls: row.toolCalls.length,
+    toolErrors: row.toolCalls.filter((c) => c.isError).length,
+  };
+}
+
+function gradeReply(kase, row) {
   if (!row.error) return grade(kase, row.text);
   const kind = errorKindOf(row);
   return {
@@ -166,6 +182,23 @@ export function gradeRow(kase, row) {
  * comparable: a model can be strong on chart lookups and hopeless at equity
  * arithmetic, and one blended percentage would hide that completely.
  */
+/**
+ * Tool use across a set of results, when the run had tools. The number that
+ * matters most is the cases that *never* called one: a model that answers
+ * from memory with a calculator sitting next to it is a finding in itself.
+ */
+function toolSummary(rows) {
+  const withTools = rows.filter((r) => r.toolCalls !== undefined);
+  if (withTools.length === 0) return {};
+  return {
+    tools: {
+      casesUsingTools: withTools.filter((r) => r.toolCalls > 0).length,
+      calls: withTools.reduce((a, r) => a + r.toolCalls, 0),
+      failedCalls: withTools.reduce((a, r) => a + r.toolErrors, 0),
+    },
+  };
+}
+
 export function summarise(results) {
   const byType = new Map();
   for (const r of results) {
@@ -186,6 +219,7 @@ export function summarise(results) {
       meanError: errors.length ? errors.reduce((a, b) => a + b, 0) / errors.length : null,
       maxError: errors.length ? Math.max(...errors) : null,
       unit: rows.find((r) => r.unit)?.unit ?? null,
+      ...toolSummary(rows),
     };
   };
   return {
