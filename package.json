@@ -1,0 +1,17 @@
+{
+  "name": "poker-agent-evals",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "An evaluation harness that scores LLM poker decisions against computed ground truth.",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cases": "node bin/build-cases.mjs",
+    "eval": "node bin/eval.mjs",
+    "report": "node bin/report.mjs"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
+  }
+}
