@@ -21,7 +21,7 @@ export function createOpenAIRunner({
   baseUrl = 'https://api.openai.com/v1',
 } = {}) {
   if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not set. Copy .env.example to .env and fill it in.');
+    throw new Error('OPENAI_API_KEY is not set. Copy .env.example to .env and fill it in, or pass it inline for one run.');
   }
   // Flipped the first time the API tells us this model has no temperature.
   let sendTemperature = temperature !== null;
@@ -72,7 +72,7 @@ export function createAnthropicRunner({
   baseUrl = 'https://api.anthropic.com/v1',
 } = {}) {
   if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY is not set. Copy .env.example to .env and fill it in.');
+    throw new Error('ANTHROPIC_API_KEY is not set. Copy .env.example to .env and fill it in, or pass it inline for one run.');
   }
   return {
     name: `anthropic:${model}`,

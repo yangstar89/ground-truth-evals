@@ -18,6 +18,10 @@ import { buildPrompt } from '../src/protocol.js';
 import { grade, summarise, diffRuns } from '../src/graders/index.js';
 import { renderMarkdown, renderLine } from '../src/report.js';
 import { mapLimit } from '../src/runners/http.js';
+import { loadEnv } from '../src/env.js';
+
+// Before any runner is constructed, so a key in .env is found.
+loadEnv();
 
 function parseArgs(argv) {
   const args = { model: 'stub', cases: 'cases/v1.jsonl', concurrency: 6, seed: 1, skill: 0.8 };
