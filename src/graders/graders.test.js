@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildPrompt, parseAnswer } from '../protocol.js';
-import { grade, summarise, diffRuns } from './index.js';
+import { grade, gradeRow, summarise, diffRuns } from './index.js';
 import { RANGES, getFrequencies, getAction } from '../oracle/ranges.js';
 
 const equityCase = {
@@ -201,6 +201,46 @@ describe('summarise', () => {
   it('leaves the mean error alone when nothing could be scored', () => {
     const s = summarise([grade({ ...equityCase, id: 'x' }, 'dunno')]);
     expect(s.overall.meanError).toBeNull();
+  });
+});
+
+describe('grading a run row that holds an error instead of a reply', () => {
+  const truncated = { id: 'eq-1', text: '', error: 'reply truncated at the output cap of 16000 tokens', errorKind: 'truncated' };
+  const noCredit = { id: 'eq-1', text: '', error: 'HTTP 429 from api.openai.com: insufficient_quota', errorKind: 'request' };
+
+  it('grades a reply exactly as grade() does when there is no error', () => {
+    const row = { id: 'eq-1', text: '{"equity_pct": 91.3}' };
+    expect(gradeRow(equityCase, row)).toEqual(grade(equityCase, row.text));
+  });
+
+  it('fails a model that spent its whole budget, but not as an unreadable reply', () => {
+    const r = gradeRow(equityCase, truncated);
+    expect(r.pass).toBe(false);
+    expect(r.truncated).toBe(true);
+    expect(r.unparseable).toBeUndefined();
+  });
+
+  it('never presents a failed request as something the model said', () => {
+    const r = gradeRow(equityCase, noCredit);
+    expect(r.requestFailed).toBe(true);
+    expect(r.unparseable).toBeUndefined();
+    expect(r.detail).toMatch(/request failed/);
+  });
+
+  it('counts the three kinds of no-answer separately, so an empty account cannot pass as a 0% model', () => {
+    const s = summarise([
+      gradeRow(equityCase, truncated),
+      gradeRow(equityCase, noCredit),
+      gradeRow(equityCase, { id: 'eq-1', text: 'I would rather not say.' }),
+    ]).overall;
+    expect([s.truncated, s.requestFailed, s.unparseable]).toEqual([1, 1, 1]);
+  });
+
+  it('still recognises truncation in rows written before errorKind was recorded', () => {
+    const { errorKind, ...old } = truncated;
+    expect(gradeRow(equityCase, old).truncated).toBe(true);
+    const { errorKind: _, ...oldRequest } = noCredit;
+    expect(gradeRow(equityCase, oldRequest).requestFailed).toBe(true);
   });
 });
 

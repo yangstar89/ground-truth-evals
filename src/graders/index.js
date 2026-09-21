@@ -123,6 +123,43 @@ export function grade(kase, replyText) {
 }
 
 /**
+ * Why a call produced no reply, for rows written before runs recorded it.
+ * Only the truncation message needs recognising; anything else failed as a
+ * request.
+ */
+function errorKindOf(row) {
+  if (row.errorKind) return row.errorKind;
+  return /truncated at the output cap/.test(row.error) ? 'truncated' : 'request';
+}
+
+/**
+ * Grade one stored run row, which may hold an error instead of a reply.
+ *
+ * The two kinds of error are kept apart because they mean opposite things.
+ * `truncated` is the model's failure: it was given a generous output budget
+ * and spent all of it without answering, so it fails the case, in a column
+ * of its own. `request` is the harness's failure - a bad key, an empty
+ * account, a network fault - and says nothing about the model at all. Both
+ * used to be graded as an unreadable reply, which is how a run against an
+ * account with no credits once came out as "0/75, unreadable x75".
+ */
+export function gradeRow(kase, row) {
+  if (!row.error) return grade(kase, row.text);
+  const kind = errorKindOf(row);
+  return {
+    id: kase.id,
+    type: kase.type,
+    pass: false,
+    error: null,
+    recovered: false,
+    ...(kind === 'truncated' ? { truncated: true } : { requestFailed: true }),
+    detail: kind === 'truncated'
+      ? 'no answer: the model used its whole output budget without replying'
+      : `request failed, so the model was never graded: ${row.error.slice(0, 160)}`,
+  };
+}
+
+/**
  * Roll a list of graded results into the numbers a report shows.
  *
  * Pass rate is reported per type as well as overall, because the types are not
@@ -143,6 +180,8 @@ export function summarise(results) {
       passed: rows.filter((r) => r.pass).length,
       passRate: rows.length ? rows.filter((r) => r.pass).length / rows.length : 0,
       unparseable: rows.filter((r) => r.unparseable).length,
+      truncated: rows.filter((r) => r.truncated).length,
+      requestFailed: rows.filter((r) => r.requestFailed).length,
       recovered: rows.filter((r) => r.recovered).length,
       meanError: errors.length ? errors.reduce((a, b) => a + b, 0) / errors.length : null,
       maxError: errors.length ? Math.max(...errors) : null,

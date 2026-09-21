@@ -51,6 +51,8 @@ export function renderMarkdown({ meta, summary, results, cases, diff }) {
     'pass rate': pct(summary.overall.passRate),
     'schema ignored': summary.overall.recovered,
     unreadable: summary.overall.unparseable,
+    'out of budget': summary.overall.truncated,
+    'request failed': summary.overall.requestFailed,
     'wall clock': `${(meta.durationMs / 1000).toFixed(1)}s`,
   }]));
 
@@ -121,5 +123,7 @@ export function renderLine(meta, summary) {
   }
   if (summary.overall.recovered) parts.push(`schema ignored x${summary.overall.recovered}`);
   if (summary.overall.unparseable) parts.push(`unreadable x${summary.overall.unparseable}`);
+  if (summary.overall.truncated) parts.push(`out of budget x${summary.overall.truncated}`);
+  if (summary.overall.requestFailed) parts.push(`REQUEST FAILED x${summary.overall.requestFailed}`);
   return parts.join('  ');
 }

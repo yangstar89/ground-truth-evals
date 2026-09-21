@@ -15,9 +15,10 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, basename, dirname } from 'node:path';
 import { createRunner } from '../src/runners/index.js';
 import { buildPrompt } from '../src/protocol.js';
-import { grade, summarise, diffRuns } from '../src/graders/index.js';
+import { gradeRow, summarise, diffRuns } from '../src/graders/index.js';
 import { renderMarkdown, renderLine } from '../src/report.js';
-import { mapLimit } from '../src/runners/http.js';
+import { mapLimit, isFatal } from '../src/runners/http.js';
+import { TruncatedError } from '../src/runners/api.js';
 import { loadEnv } from '../src/env.js';
 
 // Before any runner is constructed, so a key in .env is found.
@@ -85,16 +86,27 @@ async function main() {
 
     const started = Date.now();
     let done = 0;
+    // Set by the first error that every later case would hit too.
+    let fatal = null;
     const replies = await mapLimit(cases, Number(args.concurrency), async (kase) => {
+      if (fatal) return null;
       const prompt = buildPrompt({ ...kase, type: kase.type });
       const t0 = Date.now();
       try {
         const res = await runner.complete(kase, prompt);
         return { id: kase.id, text: res.text, ms: Date.now() - t0, usage: res.usage ?? null };
       } catch (e) {
-        // A failed call is data, not a crash: record it and let the grader
-        // count it as unreadable rather than losing the whole run.
-        return { id: kase.id, text: '', ms: Date.now() - t0, error: String(e.message ?? e) };
+        if (isFatal(e)) fatal ??= e;
+        // Any other failed call is data, not a crash: record it, and why, so
+        // the grader can tell a model that ran out of budget from a request
+        // that never reached one.
+        return {
+          id: kase.id,
+          text: '',
+          ms: Date.now() - t0,
+          error: String(e.message ?? e),
+          errorKind: e instanceof TruncatedError ? 'truncated' : 'request',
+        };
       } finally {
         done++;
         if (done % 10 === 0 || done === cases.length) {
@@ -103,6 +115,13 @@ async function main() {
       }
     });
     process.stdout.write('\n');
+
+    if (fatal) {
+      // Nothing is written: there is no model behaviour here to keep or grade.
+      console.error(`\nstopped: ${fatal.message}`);
+      console.error('No run, report or baseline was written.');
+      process.exit(1);
+    }
 
     meta = {
       model: runner.name,
@@ -123,7 +142,7 @@ async function main() {
   const byId = new Map(cases.map((c) => [c.id, c]));
   const results = runRows
     .filter((r) => byId.has(r.id))
-    .map((r) => grade(byId.get(r.id), r.text));
+    .map((r) => gradeRow(byId.get(r.id), r));
 
   const summary = summarise(results);
 
@@ -142,6 +161,18 @@ async function main() {
   const reportPath = resolve(args.report ?? `reports/${stamp()}-${meta.model.replace(/[:()=,.]/g, '_')}.md`);
   mkdirSync(dirname(reportPath), { recursive: true });
   writeFileSync(reportPath, md);
+
+  // A baseline is what later runs are judged against, so one with a hole in
+  // it would report every case in the hole as "fixed" the next time round.
+  const failedRequests = summary.overall.requestFailed;
+  if (args.save && failedRequests) {
+    console.log('');
+    console.log(renderLine(meta, summary));
+    console.log(`  report -> ${reportPath}`);
+    console.error(`\nnot saving a baseline: ${failedRequests} request(s) failed, so those cases were never graded.`);
+    console.error('Re-run them; --save only accepts a run where every case reached the model.');
+    process.exit(2);
+  }
 
   if (args.save) {
     const savePath = resolve(args.save);

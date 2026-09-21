@@ -14,6 +14,23 @@
 
 const RETRYABLE = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
+/**
+ * An empty account, which neither provider reports with a status of its own:
+ * OpenAI sends a 429 that looks exactly like a rate limit, and Anthropic a
+ * 400 that looks like a malformed request. Only the body tells them apart.
+ */
+const OUT_OF_CREDIT = /insufficient_quota|credit_balance_exhausted|credit balance is too low/i;
+
+/**
+ * Errors that will fail every remaining case identically, so the run should
+ * stop at the first one. Seventy-five copies of "your key is bad" is not a
+ * result, and graded, it once looked like a model scoring 0/75.
+ */
+export function isFatal(e) {
+  if (!(e instanceof HttpError)) return false;
+  return e.status === 401 || e.status === 403 || OUT_OF_CREDIT.test(String(e.body));
+}
+
 export class HttpError extends Error {
   constructor(status, body, url) {
     // Keep the message short; the body is attached for callers that want it.
@@ -50,7 +67,8 @@ export async function postJson(url, { headers = {}, body, attempts = 4, timeoutM
 
       const text = await res.text().catch(() => '');
       const err = new HttpError(res.status, text, url);
-      if (!RETRYABLE.has(res.status) || attempt === attempts) throw err;
+      // A 429 from an empty account will not clear by waiting.
+      if (!RETRYABLE.has(res.status) || isFatal(err) || attempt === attempts) throw err;
 
       const after = Number(res.headers.get('retry-after'));
       const wait = Number.isFinite(after) && after > 0

@@ -1,8 +1,8 @@
 # Eval run — stub(seed=1,skill=0.55)
 
-| model | temperature | cases | pass rate | schema ignored | unreadable | wall clock |
-| --- | --- | --- | --- | --- | --- | --- |
-| stub(seed=1,skill=0.55) | n/a | 75 | 58.7% | 13 | 2 | 0.0s |
+| model | temperature | cases | pass rate | schema ignored | unreadable | out of budget | request failed | wall clock |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stub(seed=1,skill=0.55) | n/a | 75 | 58.7% | 13 | 2 | 0 | 0 | 0.0s |
 
 ## By task
 
@@ -16,48 +16,52 @@
 
 Weakest first. This is the column that says what the model does not know.
 
-| tag | n | passed | pass rate |
-| --- | --- | --- | --- |
-| flat-payouts | 1 | 0 | 0.0% |
-| flush-draw-vs-pair | 1 | 0 | 0.0% |
-| leader-three | 1 | 0 | 0.0% |
-| multiway-flop | 2 | 0 | 0.0% |
-| multiway-preflop | 3 | 0 | 0.0% |
-| open-ender-vs-pair | 1 | 0 | 0.0% |
-| set-vs-overpair | 1 | 0 | 0.0% |
-| shortstack-three | 1 | 0 | 0.0% |
-| six-handed | 1 | 0 | 0.0% |
-| steep-payouts | 1 | 0 | 0.0% |
-| turn-ahead | 1 | 0 | 0.0% |
-| turn-draw | 1 | 0 | 0.0% |
-| two-pair-vs-draw | 1 | 0 | 0.0% |
-| position-sensitive | 8 | 2 | 25.0% |
-| made-vs-draw | 3 | 1 | 33.3% |
-| trash | 3 | 1 | 33.3% |
-| dominated | 3 | 2 | 66.7% |
-| premium | 3 | 2 | 66.7% |
-| premium-vs-premium | 3 | 2 | 66.7% |
-| boundary | 6 | 5 | 83.3% |
-| bb-defence | 8 | 7 | 87.5% |
-| bubble-three | 1 | 1 | 100.0% |
-| dry-flop-domination | 1 | 1 | 100.0% |
-| even-three | 1 | 1 | 100.0% |
-| final-table-bubble | 1 | 1 | 100.0% |
-| five-handed | 1 | 1 | 100.0% |
-| five-handed-leader | 1 | 1 | 100.0% |
-| flip | 3 | 3 | 100.0% |
-| four-handed | 1 | 1 | 100.0% |
-| four-handed-even | 1 | 1 | 100.0% |
-| heads-up | 1 | 1 | 100.0% |
-| heads-up-lopsided | 1 | 1 | 100.0% |
-| longshot | 2 | 2 | 100.0% |
-| more-players-than-payouts | 1 | 1 | 100.0% |
-| one-payout | 1 | 1 | 100.0% |
-| river-chop | 1 | 1 | 100.0% |
-| river-lost | 1 | 1 | 100.0% |
-| river-won | 1 | 1 | 100.0% |
-| turn-behind | 1 | 1 | 100.0% |
-| underdog-flop | 1 | 1 | 100.0% |
+Tags marked _thin_ carry fewer than three cases, so their rate is one or two
+answers rather than a measurement - read them as a pointer to look, not as a
+number to quote.
+
+| tag | n | passed | pass rate | note |
+| --- | --- | --- | --- | --- |
+| flat-payouts | 1 | 0 | 0.0% | _thin_ |
+| flush-draw-vs-pair | 1 | 0 | 0.0% | _thin_ |
+| leader-three | 1 | 0 | 0.0% | _thin_ |
+| multiway-flop | 2 | 0 | 0.0% | _thin_ |
+| multiway-preflop | 3 | 0 | 0.0% |  |
+| open-ender-vs-pair | 1 | 0 | 0.0% | _thin_ |
+| set-vs-overpair | 1 | 0 | 0.0% | _thin_ |
+| shortstack-three | 1 | 0 | 0.0% | _thin_ |
+| six-handed | 1 | 0 | 0.0% | _thin_ |
+| steep-payouts | 1 | 0 | 0.0% | _thin_ |
+| turn-ahead | 1 | 0 | 0.0% | _thin_ |
+| turn-draw | 1 | 0 | 0.0% | _thin_ |
+| two-pair-vs-draw | 1 | 0 | 0.0% | _thin_ |
+| position-sensitive | 8 | 2 | 25.0% |  |
+| made-vs-draw | 3 | 1 | 33.3% |  |
+| trash | 3 | 1 | 33.3% |  |
+| dominated | 3 | 2 | 66.7% |  |
+| premium | 3 | 2 | 66.7% |  |
+| premium-vs-premium | 3 | 2 | 66.7% |  |
+| boundary | 6 | 5 | 83.3% |  |
+| bb-defence | 8 | 7 | 87.5% |  |
+| bubble-three | 1 | 1 | 100.0% | _thin_ |
+| dry-flop-domination | 1 | 1 | 100.0% | _thin_ |
+| even-three | 1 | 1 | 100.0% | _thin_ |
+| final-table-bubble | 1 | 1 | 100.0% | _thin_ |
+| five-handed | 1 | 1 | 100.0% | _thin_ |
+| five-handed-leader | 1 | 1 | 100.0% | _thin_ |
+| flip | 3 | 3 | 100.0% |  |
+| four-handed | 1 | 1 | 100.0% | _thin_ |
+| four-handed-even | 1 | 1 | 100.0% | _thin_ |
+| heads-up | 1 | 1 | 100.0% | _thin_ |
+| heads-up-lopsided | 1 | 1 | 100.0% | _thin_ |
+| longshot | 2 | 2 | 100.0% | _thin_ |
+| more-players-than-payouts | 1 | 1 | 100.0% | _thin_ |
+| one-payout | 1 | 1 | 100.0% | _thin_ |
+| river-chop | 1 | 1 | 100.0% | _thin_ |
+| river-lost | 1 | 1 | 100.0% | _thin_ |
+| river-won | 1 | 1 | 100.0% | _thin_ |
+| turn-behind | 1 | 1 | 100.0% | _thin_ |
+| underdog-flop | 1 | 1 | 100.0% | _thin_ |
 
 ## Failures (31)
 

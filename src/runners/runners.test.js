@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { createStubRunner } from './stub.js';
 import { createRunner } from './index.js';
-import { mapLimit } from './http.js';
+import { createOpenAIRunner, createAnthropicRunner, TruncatedError } from './api.js';
+import { mapLimit, postJson, isFatal, HttpError } from './http.js';
 import { renderMarkdown, renderLine } from '../report.js';
 import { grade, summarise } from '../graders/index.js';
 import { RANGES } from '../oracle/ranges.js';
@@ -83,6 +84,121 @@ describe('createRunner', () => {
     } finally {
       if (saved !== undefined) process.env.OPENAI_API_KEY = saved;
     }
+  });
+});
+
+describe('api runners and models that reject temperature', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  // Answers 400 while the request carries a temperature, then succeeds without one.
+  function fakeApi(okBody) {
+    const sent = [];
+    vi.stubGlobal('fetch', async (url, init) => {
+      const body = JSON.parse(init.body);
+      sent.push(body);
+      if ('temperature' in body) {
+        return new Response('{"error":{"message":"`temperature` is deprecated for this model."}}', { status: 400 });
+      }
+      return new Response(JSON.stringify(okBody), { status: 200 });
+    });
+    return sent;
+  }
+
+  const adapters = [
+    ['openai', () => createOpenAIRunner({ apiKey: 'test' }), { choices: [{ message: { content: '{"equity":82}' } }] }],
+    ['anthropic', () => createAnthropicRunner({ apiKey: 'test' }), { content: [{ type: 'text', text: '{"equity":82}' }] }],
+  ];
+
+  for (const [name, make, okBody] of adapters) {
+    it(`${name}: retries once without temperature instead of failing every case`, async () => {
+      const sent = fakeApi(okBody);
+      const runner = make();
+      const { text } = await runner.complete(equityCase, 'prompt');
+      expect(text).toBe('{"equity":82}');
+      expect(sent.map((b) => 'temperature' in b)).toEqual([true, false]);
+    });
+
+    it(`${name}: records null temperature afterwards, so the run file does not claim 0`, async () => {
+      const sent = fakeApi(okBody);
+      const runner = make();
+      await runner.complete(equityCase, 'prompt');
+      await runner.complete(equityCase, 'prompt');
+      expect(runner.temperature).toBeNull();
+      // The second case goes straight through, rather than paying for the 400 again.
+      expect(sent.map((b) => 'temperature' in b)).toEqual([true, false, false]);
+    });
+
+    it(`${name}: every in-flight request retries, not just the first to be rejected`, async () => {
+      // Hold every reply until all six requests have gone out, as a real
+      // concurrent run does, so all six carry a temperature and all six are
+      // rejected after the first rejection has already flipped the flag.
+      const sent = [];
+      let release;
+      const gate = new Promise((r) => (release = r));
+      vi.stubGlobal('fetch', async (url, init) => {
+        const body = JSON.parse(init.body);
+        sent.push(body);
+        if (sent.length === 6) release();
+        await gate;
+        if ('temperature' in body) {
+          return new Response('{"error":{"message":"`temperature` is deprecated for this model."}}', { status: 400 });
+        }
+        return new Response(JSON.stringify(okBody), { status: 200 });
+      });
+      const runner = make();
+      const replies = await Promise.all(Array.from({ length: 6 }, () => runner.complete(equityCase, 'prompt')));
+      expect(replies.map((r) => r.text)).toEqual(Array(6).fill('{"equity":82}'));
+    });
+
+    it(`${name}: does not swallow a 400 that is about something else`, async () => {
+      vi.stubGlobal('fetch', async () => new Response('{"error":{"message":"credit balance is too low"}}', { status: 400 }));
+      await expect(make().complete(equityCase, 'prompt')).rejects.toThrow(/credit balance/);
+    });
+  }
+
+  // A reply stopped by the output cap must fail the call, not reach a grader
+  // as an unreadable answer that is then scored against the model.
+  const truncated = [
+    ['openai', () => createOpenAIRunner({ apiKey: 'test', temperature: null }),
+      { choices: [{ finish_reason: 'length', message: { content: '{"icm": [386.6667, 386.6667, 226.6' } }] }],
+    ['anthropic', () => createAnthropicRunner({ apiKey: 'test', temperature: null }),
+      { stop_reason: 'max_tokens', content: [{ type: 'thinking', thinking: '' }] }],
+  ];
+  for (const [name, make, body] of truncated) {
+    it(`${name}: a reply cut off at the output cap is an error, not a wrong answer`, async () => {
+      vi.stubGlobal('fetch', async () => new Response(JSON.stringify(body), { status: 200 }));
+      await expect(make().complete(icmCase, 'prompt')).rejects.toThrow(TruncatedError);
+    });
+  }
+});
+
+describe('errors that end a run', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  // The bodies the two providers actually sent for an empty account.
+  const openaiEmpty = '{"error":{"type":"insufficient_quota","code":"credit_balance_exhausted"}}';
+  const anthropicEmpty = '{"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API."}}';
+
+  it('treats an empty account as fatal, whichever status it arrives with', () => {
+    expect(isFatal(new HttpError(429, openaiEmpty, 'https://api.openai.com/v1'))).toBe(true);
+    expect(isFatal(new HttpError(400, anthropicEmpty, 'https://api.anthropic.com/v1'))).toBe(true);
+    expect(isFatal(new HttpError(401, 'bad key', 'https://api.openai.com/v1'))).toBe(true);
+  });
+
+  it('does not treat an ordinary rate limit or a bad request as fatal', () => {
+    expect(isFatal(new HttpError(429, '{"error":{"type":"rate_limit_exceeded"}}', 'https://api.openai.com/v1'))).toBe(false);
+    expect(isFatal(new HttpError(400, 'temperature is deprecated', 'https://api.anthropic.com/v1'))).toBe(false);
+    expect(isFatal(new Error('socket hang up'))).toBe(false);
+  });
+
+  it('does not retry an out-of-credit 429, which waiting will never clear', async () => {
+    let calls = 0;
+    vi.stubGlobal('fetch', async () => {
+      calls++;
+      return new Response(openaiEmpty, { status: 429 });
+    });
+    await expect(postJson('https://api.openai.com/v1/x', { body: {} })).rejects.toThrow(HttpError);
+    expect(calls).toBe(1);
   });
 });
 
