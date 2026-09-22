@@ -1,12 +1,9 @@
 /**
  * Preflop opening and defending ranges, as a 169-hand grid per position.
  *
- * Taken from another of the author's projects. This is chart
- * data rather than anything proprietary - published RFI and blind-defence
- * ranges of the kind every solver output and training site agrees on - and it
- * is the ground truth the range-action grader scores against.
- *
- * Kept byte-for-byte so it can be re-synced from the source with a diff.
+ * Chart data rather than anything proprietary - published RFI and
+ * blind-defence ranges of the kind every solver output and training site
+ * agrees on - and the ground truth the range-action grader scores against.
  */
 
 export const RANKS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];

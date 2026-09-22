@@ -1,9 +1,9 @@
 /**
- * Hold'em equity, computed independently of the app under evaluation.
+ * Hold'em equity, computed from scratch.
  *
- * The harness deliberately does not import an existing engine. A grader
- * that shares code with the thing it grades can only ever confirm that the two
- * agree, and the point is an independent source of truth.
+ * Deliberately not borrowed from an existing engine. A grader that shares code
+ * with the thing it grades can only ever confirm that the two agree, and the
+ * point is an independent source of truth.
  *
  * Two regimes, and which one produced a number is always recorded:
  *
@@ -50,7 +50,7 @@ export function choose(n, k) {
 /**
  * One showdown: 1 for a win, 0 for a loss, 1/n for an n-way chop. Splitting
  * ties is what makes this equity rather than win rate, and it matches the
- * definition another of the author's projects uses (win + tie/2 heads-up).
+ * standard definition (win + tie/2 heads-up).
  */
 function showdown(heroScore, oppScores) {
   let ties = 1;

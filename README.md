@@ -229,8 +229,7 @@ the mistake the ICM task exists to catch.
 
 ## Provenance
 
-`src/oracle/icm.js` and `src/oracle/ranges.js` are taken from another of the author's projects,
-Both are standard published poker mathematics — the
-Malmuth-Harville model and preflop charts of the kind every solver output
-agrees on — rather than anything proprietary. The equity engine is not
-vendored; this repo computes equity from scratch, on purpose.
+The ICM oracle is the standard Malmuth-Harville model, and the preflop ranges
+are chart data of the kind every solver output agrees on; neither is
+proprietary. Equity is computed from scratch here, on purpose, rather than
+borrowed from an existing engine.

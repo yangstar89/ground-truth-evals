@@ -1,9 +1,7 @@
 /**
  * ICM equity by the Malmuth-Harville model.
  *
- * Taken from another of the author's projects, so the harness
- * has no runtime dependency on that repository. The model is standard published
- * tournament mathematics rather than anything proprietary: a player's chance of
+ * Standard published tournament mathematics: a player's chance of
  * finishing first is taken as their share of the chips in play, and the model
  * recurses over who finishes next with that player removed.
  *
