@@ -10,14 +10,22 @@
 const pct = (x) => `${(x * 100).toFixed(1)}%`;
 const num = (x, dp = 2) => (x === null || x === undefined ? '-' : Number(x).toFixed(dp));
 
+/**
+ * One markdown table cell. A newline ends the row and a pipe starts a new
+ * column, and failure details carry both: a failed request quotes the API's
+ * error body, which OpenAI pretty-prints over several lines. Unescaped, one
+ * such cell ends the table at that row.
+ */
+const cell = (v) => String(v ?? '').replace(/\s*\r?\n\s*/g, ' ').replace(/\|/g, '\\|');
+
 function table(rows) {
   if (rows.length === 0) return '_none_\n';
   const head = Object.keys(rows[0]);
   const line = (cells) => `| ${cells.join(' | ')} |`;
   return [
-    line(head),
+    line(head.map(cell)),
     line(head.map(() => '---')),
-    ...rows.map((r) => line(head.map((h) => String(r[h] ?? '')))),
+    ...rows.map((r) => line(head.map((h) => cell(r[h])))),
   ].join('\n') + '\n';
 }
 

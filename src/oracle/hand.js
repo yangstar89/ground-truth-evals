@@ -27,9 +27,15 @@ export const suitOf = (card) => SUITS.indexOf(card[1]);
 export function parseCards(input) {
   const raw = Array.isArray(input)
     ? input
-    : String(input).trim().split(/[\s,]+/).filter(Boolean).flatMap((tok) =>
-        tok.length > 2 ? tok.match(/.{2}/g) ?? [] : [tok],
-      );
+    : String(input).trim().split(/[\s,]+/).filter(Boolean).flatMap((tok) => {
+        if (tok.length <= 2) return [tok];
+        // A run of cards is split into pairs. An odd character left over must
+        // be refused, not dropped: "AhKdQ" silently read as AhKd would score
+        // a different hand, and a stray character on a board would drop a
+        // card and move the street.
+        if (tok.length % 2) throw new Error(`bad card: cannot split ${JSON.stringify(tok)} into two-character cards`);
+        return tok.match(/.{2}/g);
+      });
   const out = raw.map((c) => {
     if (typeof c !== 'string' || c.length !== 2) throw new Error(`bad card: ${JSON.stringify(c)}`);
     const r = c[0].toUpperCase();

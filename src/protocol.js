@@ -110,6 +110,8 @@ export function parseAnswer(kase, text) {
       const obj = JSON.parse(block);
       const value = fromObject(kase, obj);
       if (value !== undefined) return { value, recovered: false, raw };
+      const offSchema = bareEquity(kase, obj);
+      if (offSchema !== undefined) return { value: offSchema, recovered: true, raw };
     } catch {
       // fall through to the prose reader
     }
@@ -121,7 +123,7 @@ export function parseAnswer(kase, text) {
 
 function fromObject(kase, obj) {
   if (kase.type === 'equity') {
-    const n = obj.equity_pct ?? obj.equity ?? obj.equityPct;
+    const n = obj.equity_pct ?? obj.equityPct;
     return typeof n === 'number' && Number.isFinite(n) ? n : undefined;
   }
   if (kase.type === 'icm') {
@@ -136,6 +138,23 @@ function fromObject(kase, obj) {
     return ['raise', 'call', 'fold'].includes(norm) ? norm : undefined;
   }
   return undefined;
+}
+
+/**
+ * A bare `equity` key, which the schema does not ask for and whose unit is
+ * ambiguous. The poker_equity tool returns `equity` as a 0-1 fraction beside
+ * `equity_pct`, so a model echoing the tool's field sends 0.239 for 23.9% -
+ * and reading that as a percentage would fail a correct answer by 23.7 points.
+ * A value in [0, 1] is taken as a fraction, anything larger as a percentage,
+ * and either way the reply counts as having ignored the schema. The one case
+ * this misreads is a sub-1% answer given as a percentage under the wrong key,
+ * and that reply is already off-contract and reported as such.
+ */
+function bareEquity(kase, obj) {
+  if (kase.type !== 'equity') return undefined;
+  const n = obj.equity;
+  if (typeof n !== 'number' || !Number.isFinite(n)) return undefined;
+  return n >= 0 && n <= 1 ? n * 100 : n;
 }
 
 function fromProse(kase, raw) {

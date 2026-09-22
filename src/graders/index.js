@@ -207,7 +207,12 @@ export function summarise(results) {
   }
   const block = (rows) => {
     const scored = rows.filter((r) => !r.unparseable && r.error !== null);
-    const errors = scored.map((r) => r.error);
+    // An average of percentage points, dollars and frequency points is not
+    // a number, so error figures exist only where every result shares a
+    // unit. The overall block therefore has none - it once reported a
+    // "worst error" of 500 percentage points that was a USD ICM miss.
+    const units = new Set(scored.map((r) => r.unit));
+    const errors = units.size === 1 ? scored.map((r) => r.error) : [];
     return {
       n: rows.length,
       passed: rows.filter((r) => r.pass).length,
@@ -218,7 +223,7 @@ export function summarise(results) {
       recovered: rows.filter((r) => r.recovered).length,
       meanError: errors.length ? errors.reduce((a, b) => a + b, 0) / errors.length : null,
       maxError: errors.length ? Math.max(...errors) : null,
-      unit: rows.find((r) => r.unit)?.unit ?? null,
+      unit: units.size === 1 ? [...units][0] : null,
       ...toolSummary(rows),
     };
   };

@@ -40,6 +40,24 @@ describe('prompts', () => {
   });
 });
 
+describe('an equity reply under the bare "equity" key', () => {
+  it('reads a 0-1 value as a fraction, so echoing the tool\'s own field is not scored 23 points out', () => {
+    // poker_equity returns equity as a fraction beside equity_pct.
+    const r = parseAnswer(equityCase, '{"equity": 0.9128}');
+    expect(r.value).toBeCloseTo(91.28, 6);
+    expect(grade(equityCase, '{"equity": 0.9128}').pass).toBe(true);
+  });
+
+  it('reads a larger value as a percentage', () => {
+    expect(parseAnswer(equityCase, '{"equity": 91.3}').value).toBe(91.3);
+  });
+
+  it('counts either as ignoring the schema, which asks for equity_pct', () => {
+    expect(parseAnswer(equityCase, '{"equity": 0.9128}').recovered).toBe(true);
+    expect(parseAnswer(equityCase, '{"equity_pct": 91.3}').recovered).toBe(false);
+  });
+});
+
 describe('parsing a reply', () => {
   it('reads the contract being honoured', () => {
     const r = parseAnswer(equityCase, '{"equity_pct": 91.3}');
@@ -241,6 +259,19 @@ describe('grading a run row that holds an error instead of a reply', () => {
     expect(gradeRow(equityCase, old).truncated).toBe(true);
     const { errorKind: _, ...oldRequest } = noCredit;
     expect(gradeRow(equityCase, oldRequest).requestFailed).toBe(true);
+  });
+});
+
+describe('error figures across task types', () => {
+  it('gives none for a mix of units, rather than averaging points with dollars', () => {
+    const s = summarise([
+      grade(equityCase, '{"equity_pct": 80}'),
+      grade(icmCase, '{"icm": [900, 50, 50]}'),
+    ]);
+    expect([s.overall.meanError, s.overall.maxError, s.overall.unit]).toEqual([null, null, null]);
+    // Per task, where one unit holds, they are still reported.
+    expect(s.byType.equity.unit).toBe('percentage points');
+    expect(s.byType.icm.maxError).toBeGreaterThan(400);
   });
 });
 

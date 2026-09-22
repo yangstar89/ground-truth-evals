@@ -16,6 +16,16 @@ describe('parsing', () => {
   });
 });
 
+describe('parsing a run of cards with a character left over', () => {
+  it('refuses it, rather than dropping the stray character and scoring a different spot', () => {
+    // Split into pairs, "AhKdQ" used to read as AhKd, and a stray character
+    // on a board silently dropped a card and changed the street.
+    expect(() => parseCards('AhKdQ')).toThrow(/AhKdQ/);
+    expect(() => parseCards('2c7d9hJs4')).toThrow(/bad card/);
+    expect(parseCards('2c7d9hJs4c')).toHaveLength(5);
+  });
+});
+
 describe('hand ranking', () => {
   const better = (a, b) => scoreFive(parseCards(a)) > scoreFive(parseCards(b));
 

@@ -14,9 +14,9 @@
       "passRate": 0.8,
       "unparseable": 2,
       "recovered": 13,
-      "meanError": 15.51682607150057,
-      "maxError": 265.2941176470588,
-      "unit": "percentage points"
+      "meanError": null,
+      "maxError": null,
+      "unit": null
     },
     "byType": {
       "equity": {

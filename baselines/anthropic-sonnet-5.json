@@ -15,9 +15,9 @@
       "truncated": 9,
       "requestFailed": 0,
       "recovered": 0,
-      "meanError": 5.609597230712632,
-      "maxError": 100,
-      "unit": "percentage points"
+      "meanError": null,
+      "maxError": null,
+      "unit": null
     },
     "byType": {
       "equity": {

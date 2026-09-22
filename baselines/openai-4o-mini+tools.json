@@ -23,9 +23,9 @@
       "truncated": 0,
       "requestFailed": 0,
       "recovered": 0,
-      "meanError": 0.031764421997754984,
-      "maxError": 0.43882407407403434,
-      "unit": "percentage points",
+      "meanError": null,
+      "maxError": null,
+      "unit": null,
       "tools": {
         "casesUsingTools": 75,
         "calls": 75,

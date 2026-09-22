@@ -326,6 +326,15 @@ describe('report', () => {
   const summary = summarise(results);
   const meta = { model: 'stub(test)', temperature: 0, durationMs: 1234 };
 
+  it('keeps a failure table whole when a detail spans lines or holds a pipe', () => {
+    // A failed request quotes the API body, which OpenAI pretty-prints.
+    const broken = { ...results[0], pass: false, detail: 'request failed: HTTP 429 {\n    "error": "a | b"\n}' };
+    const md = renderMarkdown({ meta, summary, results: [broken], cases, diff: null });
+    const row = md.split('\n').find((l) => l.startsWith(`| ${broken.id} `));
+    expect(row).toContain('HTTP 429 { "error": "a \\| b" }');
+    expect(row.endsWith('|')).toBe(true);
+  });
+
   it('renders every section, and never blends the task types', () => {
     const md = renderMarkdown({ meta, summary, results, cases });
     expect(md).toContain('# Eval run — stub(test)');
