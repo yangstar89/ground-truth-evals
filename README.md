@@ -57,16 +57,15 @@ cases/*.jsonl   one spot per line: the inputs, the oracle's answer, a tolerance
 src/oracle/     the source of truth - equity, ICM, preflop charts
 src/protocol.js one case -> one prompt; one reply -> one value
 src/graders/    a value -> a score, plus run summaries and baseline diffs
+src/runners/    OpenAI, Anthropic and a stub; the tool loop; the MCP client
+src/mcp/        the oracle as MCP tools, and the tests the server must pass
 runs/           every raw reply, cached, so re-grading costs nothing
+baselines/      graded runs, committed; every number in Results comes from one
 ```
 
 ### The oracle
 
 `src/oracle/` computes the right answer independently of anything being tested.
-It does **not** import the equity engine from
-an existing engine, even though that engine exists and is by
-the same author: a grader that shares code with the system it grades can only
-show that the code agrees with itself.
 
 Two regimes, and every case records which one produced its number:
 
@@ -124,7 +123,6 @@ live stdio and check it against every case:
 - [x] markdown reports, broken down by task and by kind of spot
 - [x] MCP server exposing the oracle as tools, and a `--tools` mode that runs a
       model with them
-
 - [x] the same cases run unaided and with tools, for two models (see Results)
 
 ## The oracle as MCP tools
@@ -144,7 +142,7 @@ Three decisions shape it:
   unaided runs show what calculating by hand gets you.
 - **Every refusal says what would have been valid**, and comes back as a tool
   result the model can read, not a protocol error it may never see: `unknown
-  position "LJ"; valid: UTG, HJ, CO, BTN, SB, BB.` One retry is enough.
+  position "LJ"; valid: UTG, HJ, CO, BTN, SB, BB.` so the next call can be right.
 - **Equity samples where the eval would refuse.** The eval's `enumerateEquity`
   throws past its cap because a case marked exact must be exact. A tool that
   refuses is useless, so `poker_equity` samples instead and reports
