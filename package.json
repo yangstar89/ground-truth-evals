@@ -1,5 +1,5 @@
 {
-  "name": "poker-agent-evals",
+  "name": "ground-truth-evals",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -10,7 +10,7 @@
     "cases": "node examples/poker/build-cases.mjs",
     "eval": "node bin/eval.mjs",
     "eval:stub": "node bin/eval.mjs --model stub",
-    "results": "node bin/compare.mjs --title \"Measurements: poker-agent-evals\"",
+    "results": "node bin/compare.mjs --title \"Measurements: ground-truth-evals\"",
     "cases:dates": "node examples/dates/build-cases.mjs",
     "eval:dates": "node bin/eval.mjs --suite examples/dates/suite.js --model stub"
   },
@@ -23,6 +23,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yangstar89/poker-agent-evals.git"
+    "url": "https://github.com/yangstar89/ground-truth-evals.git"
   }
 }

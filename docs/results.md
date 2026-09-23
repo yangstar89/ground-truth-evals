@@ -1,4 +1,4 @@
-# Measurements: poker-agent-evals
+# Measurements: ground-truth-evals
 
 Generated from the baselines in `examples/poker/baselines` by `node bin/compare.mjs`.
 Every figure here is read from a committed baseline file, so this document

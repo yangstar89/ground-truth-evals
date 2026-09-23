@@ -1,6 +1,6 @@
-# poker-agent-evals
+# ground-truth-evals
 
-[![tests](https://github.com/yangstar89/poker-agent-evals/actions/workflows/test.yml/badge.svg)](https://github.com/yangstar89/poker-agent-evals/actions/workflows/test.yml)
+[![tests](https://github.com/yangstar89/ground-truth-evals/actions/workflows/test.yml/badge.svg)](https://github.com/yangstar89/ground-truth-evals/actions/workflows/test.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 An evaluation harness that scores an LLM's poker decisions against **computed
@@ -244,10 +244,10 @@ Install, after `npm install`, with the absolute path to this checkout:
 
 ```bash
 # Claude Code
-claude mcp add poker-oracle -- node /path/to/poker-agent-evals/examples/poker/mcp-server.mjs
+claude mcp add poker-oracle -- node /path/to/ground-truth-evals/examples/poker/mcp-server.mjs
 
 # Codex
-codex mcp add poker-oracle -- node /path/to/poker-agent-evals/examples/poker/mcp-server.mjs
+codex mcp add poker-oracle -- node /path/to/ground-truth-evals/examples/poker/mcp-server.mjs
 ```
 
 Cursor, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
@@ -257,7 +257,7 @@ Cursor, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
   "mcpServers": {
     "poker-oracle": {
       "command": "node",
-      "args": ["/path/to/poker-agent-evals/examples/poker/mcp-server.mjs"]
+      "args": ["/path/to/ground-truth-evals/examples/poker/mcp-server.mjs"]
     }
   }
 }
