@@ -135,7 +135,7 @@ describe('enumerated equity', () => {
   it('rejects impossible inputs instead of returning a number', () => {
     expect(() => enumerateEquity('AcAd', ['AcKd'], '2c 7d 9h')).toThrow(/duplicate/);
     expect(() => enumerateEquity('AcAd', ['KcKd'], '2c 7d')).toThrow(/board/);
-    expect(() => enumerateEquity('AcAdKh', ['KcKd'], '2c 7d 9h')).toThrow(/two cards/);
+    expect(() => enumerateEquity('AcAdKh', ['KcKd'], '2c 7d 9h')).toThrow(/hero needs exactly 2 cards/);
   });
 });
 
