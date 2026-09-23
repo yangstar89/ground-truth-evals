@@ -46,7 +46,41 @@ What the runs show:
   for a tool is a separate number from how well it uses one, and the harness
   reports both.
 
-Read these with their limits. Each figure is one run of 75 cases, so a
+### The other games
+
+The same two models over 36 Omaha, short-deck and Omaha Hi-Lo spots, where a
+Hold'em habit is wrong:
+
+| | plo | plo5 | plo6 | shortdeck | hi-lo | all |
+|---|---|---|---|---|---|---|
+| gpt-4o-mini, unaided | 1/12 | 1/4 | 1/4 | 0/8 | 1/8 | **4/36** |
+| gpt-4o-mini, with tools | 12/12 | 1/4 | 4/4 | 8/8 | 7/8 | **32/36** |
+| claude-sonnet-5, unaided | 2/12 | 1/4 | 1/4 | 4/8 | 1/8 | **9/36** |
+| claude-sonnet-5, with tools | 12/12 | 4/4 | 4/4 | 8/8 | 8/8 | **36/36** |
+
+- **Unaided, both models are close to guessing**: 4/36 and 9/36, against 26/75
+  and 58/75 on Hold'em. Short deck is the one they handle best, because it is
+  the most Hold'em-like; Omaha Hi-Lo, where the pot can split, is the worst.
+- **Sonnet 5 ran out of its 16,000-token budget on 15 of the 36**, having tried
+  to enumerate Omaha by hand - sixty five-card combinations per player per
+  board. Where it did answer, it sometimes applied the two-card rule too
+  hard: holding `AhKh` on a two-heart board it called the nut flush draw
+  worth 0%, when it is worth 39.6%.
+- **With the tools, the arithmetic stops being the problem** and using them
+  correctly becomes the whole game. Sonnet 5 made exactly 36 calls for 36
+  cases, every one naming the right game with the cards transcribed exactly,
+  and scored 36/36.
+- **gpt-4o-mini's 21 failed calls out of 59 are the finding.** On the
+  five-card Omaha spots it asked for `plo`, the four-card game. The tool
+  refused and named both the game and the count - and rather than correct the
+  variant, the model *deleted a card from the hand* to fit. That produced
+  confident answers to a spot nobody asked about (49.8% where the truth is
+  61.9%), and it is why three of its four failures are plo5 while every other
+  game is near-perfect. A tool that refuses clearly is not enough on its own:
+  the model still has to repair the right thing.
+
+Read these with their limits. Each Hold'em figure is one run of 75 cases and
+each variant figure one run of 36, so a
 difference of a case or two is noise. The tools return the oracle's own
 answers, so the with-tools rows measure tool *use* - choosing the tool, passing
 the cards correctly, reporting the result faithfully - rather than the oracle,
@@ -158,7 +192,7 @@ live stdio and check it against every case:
 - [x] the same cases run unaided and with tools, for two models (see Results)
 - [x] harness and domain split apart, so another domain plugs in as a suite
 - [x] Omaha (4/5/6 cards), short deck and Omaha Hi-Lo, with 36 more cases
-- [ ] model runs over the variant cases
+- [x] both models run over the variant cases, unaided and with tools
 
 ## The oracle as MCP tools
 

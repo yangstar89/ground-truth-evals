@@ -1,0 +1,407 @@
+{
+  "meta": {
+    "model": "anthropic:claude-sonnet-5",
+    "temperature": null,
+    "promptVersion": "v1",
+    "durationMs": 648608,
+    "suite": "poker",
+    "cases": "variants.jsonl",
+    "runFile": "2026-09-23T03-38-02-055-anthropic_claude-sonnet-5.jsonl"
+  },
+  "summary": {
+    "overall": {
+      "n": 36,
+      "passed": 9,
+      "passRate": 0.25,
+      "unparseable": 0,
+      "truncated": 15,
+      "requestFailed": 0,
+      "recovered": 1,
+      "meanError": 7.272339722761596,
+      "maxError": 39.63414634146341,
+      "unit": "percentage points"
+    },
+    "byType": {
+      "equity": {
+        "n": 36,
+        "passed": 9,
+        "passRate": 0.25,
+        "unparseable": 0,
+        "truncated": 15,
+        "requestFailed": 0,
+        "recovered": 1,
+        "meanError": 7.272339722761596,
+        "maxError": 39.63414634146341,
+        "unit": "percentage points"
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "veq-001",
+      "type": "equity",
+      "recovered": true,
+      "pass": true,
+      "error": 0,
+      "unit": "percentage points",
+      "expected": 0,
+      "got": 0,
+      "detail": "said 0.0%, truth 0.0% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-002",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-003",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-004",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 9.119999999999997,
+      "unit": "percentage points",
+      "expected": 63.38,
+      "got": 72.5,
+      "detail": "said 72.5%, truth 63.4% (9.1pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-005",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0.835000000000008,
+      "unit": "percentage points",
+      "expected": 58.135000000000005,
+      "got": 57.3,
+      "detail": "said 57.3%, truth 58.1% (0.8pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-006",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 3.039999999999999,
+      "unit": "percentage points",
+      "expected": 39.96,
+      "got": 43,
+      "detail": "said 43.0%, truth 40.0% (3.0pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-007",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-008",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 39.63414634146341,
+      "unit": "percentage points",
+      "expected": 39.63414634146341,
+      "got": 0,
+      "detail": "said 0.0%, truth 39.6% (39.6pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-009",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-010",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 6.9925,
+      "unit": "percentage points",
+      "expected": 54.5075,
+      "got": 61.5,
+      "detail": "said 61.5%, truth 54.5% (7.0pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-011",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-012",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-013",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 3.5600000000000023,
+      "unit": "percentage points",
+      "expected": 61.94,
+      "got": 65.5,
+      "detail": "said 65.5%, truth 61.9% (3.6pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-014",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0,
+      "unit": "percentage points",
+      "expected": 0,
+      "got": 0,
+      "detail": "said 0.0%, truth 0.0% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-015",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-016",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-017",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 10.502499999999998,
+      "unit": "percentage points",
+      "expected": 57.9975,
+      "got": 68.5,
+      "detail": "said 68.5%, truth 58.0% (10.5pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-018",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0,
+      "unit": "percentage points",
+      "expected": 0,
+      "got": 0,
+      "detail": "said 0.0%, truth 0.0% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-019",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-020",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-021",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0.0034482758620697496,
+      "unit": "percentage points",
+      "expected": 6.896551724137931,
+      "got": 6.9,
+      "detail": "said 6.9%, truth 6.9% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-022",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0.0034482758620697496,
+      "unit": "percentage points",
+      "expected": 93.10344827586206,
+      "got": 93.1,
+      "detail": "said 93.1%, truth 93.1% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-023",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 4.5532019704433395,
+      "unit": "percentage points",
+      "expected": 88.54679802955665,
+      "got": 93.1,
+      "detail": "said 93.1%, truth 88.5% (4.6pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-024",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 7.402392340696011,
+      "unit": "percentage points",
+      "expected": 74.25760765930399,
+      "got": 81.66,
+      "detail": "said 81.7%, truth 74.3% (7.4pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-025",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0.5773220244716271,
+      "unit": "percentage points",
+      "expected": 54.27732202447163,
+      "got": 53.7,
+      "detail": "said 53.7%, truth 54.3% (0.6pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-026",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0.2162521849674235,
+      "unit": "percentage points",
+      "expected": 39.71625218496742,
+      "got": 39.5,
+      "detail": "said 39.5%, truth 39.7% (0.2pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-027",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-028",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 12.538333333333263,
+      "unit": "percentage points",
+      "expected": 55.86166666666674,
+      "got": 68.4,
+      "detail": "said 68.4%, truth 55.9% (12.5pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-029",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-030",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-031",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 1.0997560975609764,
+      "unit": "percentage points",
+      "expected": 4.390243902439024,
+      "got": 5.49,
+      "detail": "said 5.5%, truth 4.4% (1.1pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-032",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-033",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 22.540000000000006,
+      "unit": "percentage points",
+      "expected": 64.96,
+      "got": 87.5,
+      "detail": "said 87.5%, truth 65.0% (22.5pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-034",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 16.064999999999998,
+      "unit": "percentage points",
+      "expected": 45.065,
+      "got": 29,
+      "detail": "said 29.0%, truth 45.1% (16.1pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-035",
+      "type": "equity",
+      "pass": false,
+      "error": null,
+      "recovered": false,
+      "truncated": true,
+      "detail": "no answer: the model used its whole output budget without replying"
+    },
+    {
+      "id": "veq-036",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 14.035833333333315,
+      "unit": "percentage points",
+      "expected": 43.26416666666668,
+      "got": 57.3,
+      "detail": "said 57.3%, truth 43.3% (14.0pp out, tolerance 2.5)"
+    }
+  ]
+}

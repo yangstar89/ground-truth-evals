@@ -1,0 +1,437 @@
+{
+  "meta": {
+    "model": "openai:gpt-4o-mini",
+    "temperature": 0,
+    "promptVersion": "v1",
+    "durationMs": 6653,
+    "suite": "poker",
+    "cases": "variants.jsonl",
+    "runFile": "2026-09-23T03-26-13-794-openai_gpt-4o-mini.jsonl"
+  },
+  "summary": {
+    "overall": {
+      "n": 36,
+      "passed": 4,
+      "passRate": 0.1111111111111111,
+      "unparseable": 0,
+      "truncated": 0,
+      "requestFailed": 0,
+      "recovered": 0,
+      "meanError": 20.11396819953167,
+      "maxError": 67.26726726726727,
+      "unit": "percentage points"
+    },
+    "byType": {
+      "equity": {
+        "n": 36,
+        "passed": 4,
+        "passRate": 0.1111111111111111,
+        "unparseable": 0,
+        "truncated": 0,
+        "requestFailed": 0,
+        "recovered": 0,
+        "meanError": 20.11396819953167,
+        "maxError": 67.26726726726727,
+        "unit": "percentage points"
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "veq-001",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 25,
+      "unit": "percentage points",
+      "expected": 0,
+      "got": 25,
+      "detail": "said 25.0%, truth 0.0% (25.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-002",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0,
+      "unit": "percentage points",
+      "expected": 0,
+      "got": 0,
+      "detail": "said 0.0%, truth 0.0% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-003",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 57.90829268292683,
+      "unit": "percentage points",
+      "expected": 94.26829268292683,
+      "got": 36.36,
+      "detail": "said 36.4%, truth 94.3% (57.9pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-004",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 19.949999999999996,
+      "unit": "percentage points",
+      "expected": 63.38,
+      "got": 83.33,
+      "detail": "said 83.3%, truth 63.4% (19.9pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-005",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 8.534999999999997,
+      "unit": "percentage points",
+      "expected": 58.135000000000005,
+      "got": 66.67,
+      "detail": "said 66.7%, truth 58.1% (8.5pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-006",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 10.79,
+      "unit": "percentage points",
+      "expected": 39.96,
+      "got": 29.17,
+      "detail": "said 29.2%, truth 40.0% (10.8pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-007",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 17.5609756097561,
+      "unit": "percentage points",
+      "expected": 42.5609756097561,
+      "got": 25,
+      "detail": "said 25.0%, truth 42.6% (17.6pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-008",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 39.63414634146341,
+      "unit": "percentage points",
+      "expected": 39.63414634146341,
+      "got": 0,
+      "detail": "said 0.0%, truth 39.6% (39.6pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-009",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 9.756097560975604,
+      "unit": "percentage points",
+      "expected": 84.7560975609756,
+      "got": 75,
+      "detail": "said 75.0%, truth 84.8% (9.8pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-010",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 12.162500000000001,
+      "unit": "percentage points",
+      "expected": 54.5075,
+      "got": 66.67,
+      "detail": "said 66.7%, truth 54.5% (12.2pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-011",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 30.424174174174173,
+      "unit": "percentage points",
+      "expected": 25.825825825825827,
+      "got": 56.25,
+      "detail": "said 56.3%, truth 25.8% (30.4pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-012",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 6.359999999999999,
+      "unit": "percentage points",
+      "expected": 30,
+      "got": 36.36,
+      "detail": "said 36.4%, truth 30.0% (6.4pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-013",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 4.730000000000004,
+      "unit": "percentage points",
+      "expected": 61.94,
+      "got": 66.67,
+      "detail": "said 66.7%, truth 61.9% (4.7pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-014",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0,
+      "unit": "percentage points",
+      "expected": 0,
+      "got": 0,
+      "detail": "said 0.0%, truth 0.0% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-015",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 20.59006747638327,
+      "unit": "percentage points",
+      "expected": 56.95006747638327,
+      "got": 36.36,
+      "detail": "said 36.4%, truth 57.0% (20.6pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-016",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 4.781052631578948,
+      "unit": "percentage points",
+      "expected": 31.57894736842105,
+      "got": 36.36,
+      "detail": "said 36.4%, truth 31.6% (4.8pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-017",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 8.6725,
+      "unit": "percentage points",
+      "expected": 57.9975,
+      "got": 66.67,
+      "detail": "said 66.7%, truth 58.0% (8.7pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-018",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 0,
+      "unit": "percentage points",
+      "expected": 0,
+      "got": 0,
+      "detail": "said 0.0%, truth 0.0% (0.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-019",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 67.26726726726727,
+      "unit": "percentage points",
+      "expected": 67.26726726726727,
+      "got": 0,
+      "detail": "said 0.0%, truth 67.3% (67.3pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-020",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 18.674924924924923,
+      "unit": "percentage points",
+      "expected": 74.92492492492492,
+      "got": 56.25,
+      "detail": "said 56.3%, truth 74.9% (18.7pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-021",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 59.77344827586207,
+      "unit": "percentage points",
+      "expected": 6.896551724137931,
+      "got": 66.67,
+      "detail": "said 66.7%, truth 6.9% (59.8pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-022",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 26.433448275862062,
+      "unit": "percentage points",
+      "expected": 93.10344827586206,
+      "got": 66.67,
+      "detail": "said 66.7%, truth 93.1% (26.4pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-023",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 52.186798029556655,
+      "unit": "percentage points",
+      "expected": 88.54679802955665,
+      "got": 36.36,
+      "detail": "said 36.4%, truth 88.5% (52.2pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-024",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 8.092392340696009,
+      "unit": "percentage points",
+      "expected": 74.25760765930399,
+      "got": 82.35,
+      "detail": "said 82.3%, truth 74.3% (8.1pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-025",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 10.27732202447163,
+      "unit": "percentage points",
+      "expected": 54.27732202447163,
+      "got": 44,
+      "detail": "said 44.0%, truth 54.3% (10.3pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-026",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 10.166252184967423,
+      "unit": "percentage points",
+      "expected": 39.71625218496742,
+      "got": 29.55,
+      "detail": "said 29.6%, truth 39.7% (10.2pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-027",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 15.610443349753695,
+      "unit": "percentage points",
+      "expected": 51.970443349753694,
+      "got": 36.36,
+      "detail": "said 36.4%, truth 52.0% (15.6pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-028",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 26.138333333333257,
+      "unit": "percentage points",
+      "expected": 55.86166666666674,
+      "got": 82,
+      "detail": "said 82.0%, truth 55.9% (26.1pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-029",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 10.975609756097562,
+      "unit": "percentage points",
+      "expected": 60.97560975609756,
+      "got": 50,
+      "detail": "said 50.0%, truth 61.0% (11.0pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-030",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 31.536585365853654,
+      "unit": "percentage points",
+      "expected": 73.53658536585365,
+      "got": 42,
+      "detail": "said 42.0%, truth 73.5% (31.5pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-031",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 4.390243902439024,
+      "unit": "percentage points",
+      "expected": 4.390243902439024,
+      "got": 0,
+      "detail": "said 0.0%, truth 4.4% (4.4pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-032",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 39.81707317073171,
+      "unit": "percentage points",
+      "expected": 39.81707317073171,
+      "got": 0,
+      "detail": "said 0.0%, truth 39.8% (39.8pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-033",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 26.499999999999993,
+      "unit": "percentage points",
+      "expected": 64.96,
+      "got": 38.46,
+      "detail": "said 38.5%, truth 65.0% (26.5pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-034",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 21.605000000000004,
+      "unit": "percentage points",
+      "expected": 45.065,
+      "got": 66.67,
+      "detail": "said 66.7%, truth 45.1% (21.6pp out, tolerance 2.5)"
+    },
+    {
+      "id": "veq-035",
+      "type": "equity",
+      "recovered": false,
+      "pass": false,
+      "error": 16.067073170731703,
+      "unit": "percentage points",
+      "expected": 66.0670731707317,
+      "got": 50,
+      "detail": "said 50.0%, truth 66.1% (16.1pp out, tolerance 2)"
+    },
+    {
+      "id": "veq-036",
+      "type": "equity",
+      "recovered": false,
+      "pass": true,
+      "error": 1.7358333333333178,
+      "unit": "percentage points",
+      "expected": 43.26416666666668,
+      "got": 45,
+      "detail": "said 45.0%, truth 43.3% (1.7pp out, tolerance 2.5)"
+    }
+  ]
+}
