@@ -1,6 +1,5 @@
 # poker-agent-evals
 
-[![tests](https://github.com/yangstar89/poker-agent-evals/actions/workflows/test.yml/badge.svg)](https://github.com/yangstar89/poker-agent-evals/actions/workflows/test.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 An evaluation harness that scores an LLM's poker decisions against **computed
