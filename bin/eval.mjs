@@ -93,6 +93,9 @@ async function main() {
       temperature: header?.meta?.temperature ?? null,
       promptVersion: header?.meta?.promptVersion ?? 'unknown',
       suite: header?.meta?.suite ?? suite.name,
+      // Which cases these replies answer, so a baseline can still say what it
+      // is a baseline of after being re-graded.
+      cases: header?.meta?.cases ?? basename(casePath),
       ...(header?.meta?.tools ? { tools: header.meta.tools } : {}),
       durationMs: 0,
       regradedFrom: basename(path),

@@ -9,7 +9,8 @@
     "test:watch": "vitest",
     "cases": "node examples/poker/build-cases.mjs",
     "eval": "node bin/eval.mjs",
-    "eval:stub": "node bin/eval.mjs --model stub"
+    "eval:stub": "node bin/eval.mjs --model stub",
+    "results": "node bin/compare.mjs --title \"Measurements: poker-agent-evals\""
   },
   "devDependencies": {
     "vitest": "^3.0.0"

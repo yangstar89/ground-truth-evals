@@ -87,7 +87,11 @@ the cards correctly, reporting the result faithfully - rather than the oracle,
 whose correctness the unit tests establish against published values. Runs were
 made in September 2026; gpt-4o-mini at temperature 0, Sonnet 5 at its default
 sampling (it rejects a temperature) with adaptive thinking. The baselines behind
-every number are in `examples/poker/baselines/`.
+every number are in `examples/poker/baselines/`, and
+[docs/results.md](docs/results.md) has the full tables: per task, per game, per
+kind of spot, and every case with what each run answered against the truth. It
+is generated from those baselines by `npm run results`, so it cannot disagree
+with them.
 
 ## How it works
 
@@ -175,7 +179,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **179 tests**, including 26 that drive the MCP server over
+Complete and tested — **188 tests**, including 26 that drive the MCP server over
 live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
@@ -257,7 +261,7 @@ tests establish against published values.
 
 ```bash
 npm install
-npm test                      # 179 tests, no network
+npm test                      # 188 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```

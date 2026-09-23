@@ -3,6 +3,8 @@
     "model": "anthropic:claude-sonnet-5",
     "temperature": null,
     "promptVersion": "v1",
+    "suite": "poker",
+    "cases": "v1.jsonl",
     "durationMs": 0,
     "regradedFrom": "2026-09-21T16-04-56-224-anthropic_claude-sonnet-5.jsonl"
   },
@@ -62,122 +64,122 @@
     {
       "id": "eq-001",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.7067499999999853,
       "unit": "percentage points",
       "expected": 82.60674999999999,
       "got": 81.9,
-      "recovered": false,
       "detail": "said 81.9%, truth 82.6% (0.7pp out, tolerance 2.5)"
     },
     {
       "id": "eq-002",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.26550000000000296,
       "unit": "percentage points",
       "expected": 81.2345,
       "got": 81.5,
-      "recovered": false,
       "detail": "said 81.5%, truth 81.2% (0.3pp out, tolerance 2.5)"
     },
     {
       "id": "eq-003",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.10949999999999704,
       "unit": "percentage points",
       "expected": 92.6095,
       "got": 92.5,
-      "recovered": false,
       "detail": "said 92.5%, truth 92.6% (0.1pp out, tolerance 2.5)"
     },
     {
       "id": "eq-004",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.1454999999999984,
       "unit": "percentage points",
       "expected": 46.1545,
       "got": 46.3,
-      "recovered": false,
       "detail": "said 46.3%, truth 46.2% (0.1pp out, tolerance 2.5)"
     },
     {
       "id": "eq-005",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.45275000000000176,
       "unit": "percentage points",
       "expected": 53.90725,
       "got": 54.36,
-      "recovered": false,
       "detail": "said 54.4%, truth 53.9% (0.5pp out, tolerance 2.5)"
     },
     {
       "id": "eq-006",
       "type": "equity",
+      "recovered": false,
       "pass": false,
       "error": 4.45975,
       "unit": "percentage points",
       "expected": 50.04025,
       "got": 54.5,
-      "recovered": false,
       "detail": "said 54.5%, truth 50.0% (4.5pp out, tolerance 2.5)"
     },
     {
       "id": "eq-007",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.8602499999999935,
       "unit": "percentage points",
       "expected": 74.86025,
       "got": 74,
-      "recovered": false,
       "detail": "said 74.0%, truth 74.9% (0.9pp out, tolerance 2.5)"
     },
     {
       "id": "eq-008",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.285499999999999,
       "unit": "percentage points",
       "expected": 74.2855,
       "got": 74,
-      "recovered": false,
       "detail": "said 74.0%, truth 74.3% (0.3pp out, tolerance 2.5)"
     },
     {
       "id": "eq-009",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.2667500000000018,
       "unit": "percentage points",
       "expected": 74.26675,
       "got": 74,
-      "recovered": false,
       "detail": "said 74.0%, truth 74.3% (0.3pp out, tolerance 2.5)"
     },
     {
       "id": "eq-010",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.604750000000001,
       "unit": "percentage points",
       "expected": 12.604750000000001,
       "got": 12,
-      "recovered": false,
       "detail": "said 12.0%, truth 12.6% (0.6pp out, tolerance 2.5)"
     },
     {
       "id": "eq-011",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 2.3472500000000007,
       "unit": "percentage points",
       "expected": 14.84725,
       "got": 12.5,
-      "recovered": false,
       "detail": "said 12.5%, truth 14.8% (2.3pp out, tolerance 2.5)"
     },
     {
@@ -210,12 +212,12 @@
     {
       "id": "eq-015",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.0011111111111148375,
       "unit": "percentage points",
       "expected": 91.11111111111111,
       "got": 91.11,
-      "recovered": false,
       "detail": "said 91.1%, truth 91.1% (0.0pp out, tolerance 2)"
     },
     {
@@ -248,12 +250,12 @@
     {
       "id": "eq-019",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.0024242424242402194,
       "unit": "percentage points",
       "expected": 34.24242424242424,
       "got": 34.24,
-      "recovered": false,
       "detail": "said 34.2%, truth 34.2% (0.0pp out, tolerance 2)"
     },
     {
@@ -268,127 +270,128 @@
     {
       "id": "eq-021",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.0009090909090829769,
       "unit": "percentage points",
       "expected": 34.090909090909086,
       "got": 34.09,
-      "recovered": false,
       "detail": "said 34.1%, truth 34.1% (0.0pp out, tolerance 2)"
     },
     {
       "id": "eq-022",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.003636363636365658,
       "unit": "percentage points",
       "expected": 13.636363636363635,
       "got": 13.64,
-      "recovered": false,
       "detail": "said 13.6%, truth 13.6% (0.0pp out, tolerance 2)"
     },
     {
       "id": "eq-023",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0.003636363636360329,
       "unit": "percentage points",
       "expected": 86.36363636363636,
       "got": 86.36,
-      "recovered": false,
       "detail": "said 86.4%, truth 86.4% (0.0pp out, tolerance 2)"
     },
     {
       "id": "eq-024",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "percentage points",
       "expected": 100,
       "got": 100,
-      "recovered": false,
       "detail": "said 100.0%, truth 100.0% (0.0pp out, tolerance 2)"
     },
     {
       "id": "eq-025",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "percentage points",
       "expected": 0,
       "got": 0,
-      "recovered": false,
       "detail": "said 0.0%, truth 0.0% (0.0pp out, tolerance 2)"
     },
     {
       "id": "eq-026",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "percentage points",
       "expected": 50,
       "got": 50,
-      "recovered": false,
       "detail": "said 50.0%, truth 50.0% (0.0pp out, tolerance 2)"
     },
     {
       "id": "eq-027",
       "type": "equity",
+      "recovered": false,
       "pass": true,
       "error": 1.1680833333333354,
       "unit": "percentage points",
       "expected": 63.831916666666665,
       "got": 65,
-      "recovered": false,
       "detail": "said 65.0%, truth 63.8% (1.2pp out, tolerance 2.5)"
     },
     {
       "id": "eq-028",
       "type": "equity",
+      "recovered": false,
       "pass": false,
       "error": 5.280250000000045,
       "unit": "percentage points",
       "expected": 34.719749999999955,
       "got": 40,
-      "recovered": false,
       "detail": "said 40.0%, truth 34.7% (5.3pp out, tolerance 2.5)"
     },
     {
       "id": "eq-029",
       "type": "equity",
+      "recovered": false,
       "pass": false,
       "error": 8.39008333333335,
       "unit": "percentage points",
       "expected": 24.89008333333335,
       "got": 16.5,
-      "recovered": false,
       "detail": "said 16.5%, truth 24.9% (8.4pp out, tolerance 2.5)"
     },
     {
       "id": "eq-030",
       "type": "equity",
+      "recovered": false,
       "pass": false,
       "error": 13.712333333333305,
       "unit": "percentage points",
       "expected": 51.212333333333305,
       "got": 37.5,
-      "recovered": false,
       "detail": "said 37.5%, truth 51.2% (13.7pp out, tolerance 2.5)"
     },
     {
       "id": "eq-031",
       "type": "equity",
+      "recovered": false,
       "pass": false,
       "error": 21.161250000000003,
       "unit": "percentage points",
       "expected": 84.56125,
       "got": 63.4,
-      "recovered": false,
       "detail": "said 63.4%, truth 84.6% (21.2pp out, tolerance 2.5)"
     },
     {
       "id": "icm-001",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.000033333333306018176,
       "unit": "USD",
@@ -402,12 +405,12 @@
         333.3333,
         333.3333
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 333.3, truth 333.3 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-002",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "USD",
@@ -421,12 +424,12 @@
         282.6470588235294,
         282.6470588235294
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 434.7, truth 434.7 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-003",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.000030143540698190918,
       "unit": "USD",
@@ -440,12 +443,12 @@
         382.3684,
         393.5407
       ],
-      "recovered": false,
       "detail": "worst seat 3: said 393.5, truth 393.5 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-004",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.00033333333331597714,
       "unit": "USD",
@@ -459,12 +462,12 @@
         386.667,
         226.667
       ],
-      "recovered": false,
       "detail": "worst seat 3: said 226.7, truth 226.7 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-005",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.00002222222229875115,
       "unit": "USD",
@@ -478,12 +481,12 @@
         306.1111,
         306.1111
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 387.8, truth 387.8 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-006",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.000022222222128220892,
       "unit": "USD",
@@ -497,12 +500,12 @@
         166.1111,
         166.1111
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 667.8, truth 667.8 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-007",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "USD",
@@ -514,12 +517,12 @@
         530,
         470
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 530.0, truth 530.0 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-008",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "USD",
@@ -531,12 +534,12 @@
         635,
         365
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 635.0, truth 635.0 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-009",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.000025396825435564097,
       "unit": "USD",
@@ -552,12 +555,12 @@
         232.0635,
         150.0595
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 329.6, truth 329.6 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-010",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 5.684341886080802e-14,
       "unit": "USD",
@@ -573,7 +576,6 @@
         250,
         250
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 250.0, truth 250.0 (0.0 out, tolerance 20.0)"
     },
     {
@@ -588,6 +590,7 @@
     {
       "id": "icm-012",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.000027261096704478405,
       "unit": "USD",
@@ -605,7 +608,6 @@
         159.5249,
         159.5249
       ],
-      "recovered": false,
       "detail": "worst seat 2: said 159.5, truth 159.5 (0.0 out, tolerance 20.0)"
     },
     {
@@ -620,6 +622,7 @@
     {
       "id": "icm-014",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.0002502603896630262,
       "unit": "USD",
@@ -637,12 +640,12 @@
         246.058,
         15.769
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 246.1, truth 246.1 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-015",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0.0047058823529368965,
       "unit": "USD",
@@ -660,12 +663,12 @@
         154.73,
         154.73
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 286.8, truth 286.8 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "icm-016",
       "type": "icm",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "USD",
@@ -679,12 +682,12 @@
         300,
         200
       ],
-      "recovered": false,
       "detail": "worst seat 1: said 500.0, truth 500.0 (0.0 out, tolerance 20.0)"
     },
     {
       "id": "rg-001",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -692,12 +695,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-002",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -705,12 +708,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-003",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -718,12 +721,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-004",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -731,12 +734,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     },
     {
       "id": "rg-005",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -744,12 +747,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     },
     {
       "id": "rg-006",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -757,12 +760,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     },
     {
       "id": "rg-007",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -770,12 +773,12 @@
       "got": "raise",
       "mixed": true,
       "frequency": 80,
-      "recovered": false,
       "detail": "said raise, chart plays it 80% of the time (most frequent: raise at 80%)"
     },
     {
       "id": "rg-008",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -783,12 +786,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-009",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -796,12 +799,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     },
     {
       "id": "rg-010",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -809,12 +812,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-011",
       "type": "range",
+      "recovered": false,
       "pass": false,
       "error": 100,
       "unit": "frequency points",
@@ -822,12 +825,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 0,
-      "recovered": false,
       "detail": "said raise, chart says fold"
     },
     {
       "id": "rg-012",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -835,12 +838,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-013",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -848,12 +851,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     },
     {
       "id": "rg-014",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -861,12 +864,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-015",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -874,12 +877,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-016",
       "type": "range",
+      "recovered": false,
       "pass": false,
       "error": 100,
       "unit": "frequency points",
@@ -887,12 +890,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 0,
-      "recovered": false,
       "detail": "said raise, chart says fold"
     },
     {
       "id": "rg-017",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -900,12 +903,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-018",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -913,12 +916,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     },
     {
       "id": "rg-019",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -926,12 +929,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-020",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -939,12 +942,12 @@
       "got": "raise",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said raise, chart says raise"
     },
     {
       "id": "rg-021",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -952,12 +955,12 @@
       "got": "call",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said call, chart says call"
     },
     {
       "id": "rg-022",
       "type": "range",
+      "recovered": false,
       "pass": false,
       "error": 100,
       "unit": "frequency points",
@@ -965,12 +968,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 0,
-      "recovered": false,
       "detail": "said fold, chart says call"
     },
     {
       "id": "rg-023",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 10,
       "unit": "frequency points",
@@ -978,12 +981,12 @@
       "got": "call",
       "mixed": true,
       "frequency": 45,
-      "recovered": false,
       "detail": "said call, chart plays it 45% of the time (most frequent: fold at 55%)"
     },
     {
       "id": "rg-024",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -991,12 +994,12 @@
       "got": "call",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said call, chart says call"
     },
     {
       "id": "rg-025",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -1004,12 +1007,12 @@
       "got": "call",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said call, chart says call"
     },
     {
       "id": "rg-026",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -1017,12 +1020,12 @@
       "got": "call",
       "mixed": true,
       "frequency": 50,
-      "recovered": false,
       "detail": "said call, chart plays it 50% of the time (most frequent: call at 50%)"
     },
     {
       "id": "rg-027",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -1030,12 +1033,12 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     },
     {
       "id": "rg-028",
       "type": "range",
+      "recovered": false,
       "pass": true,
       "error": 0,
       "unit": "frequency points",
@@ -1043,7 +1046,6 @@
       "got": "fold",
       "mixed": false,
       "frequency": 100,
-      "recovered": false,
       "detail": "said fold, chart says fold"
     }
   ]
