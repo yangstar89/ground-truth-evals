@@ -12,8 +12,9 @@ reproducible, and re-grading free.
 
 The harness itself knows nothing about poker: `src/` runs models, caches
 replies, grades, diffs and reports, and a *suite* supplies the domain. Poker is
-the worked example, in `examples/poker/`. See
-[Evaluating something else](#evaluating-something-else).
+the worked example; `examples/dates/` is the same harness over date arithmetic
+in eighty lines. To point it at your own domain, read
+**[docs/harness.md](docs/harness.md)**.
 
 ## Results
 
@@ -103,6 +104,9 @@ src/             the harness, which knows nothing about poker
   runners/       OpenAI, Anthropic and a stub; the tool loop; the MCP client
   report.js      a run -> markdown, never blending the task types
 
+examples/dates/  a second suite in 80 lines, and the shortest thing to read
+                 first if you want the harness rather than the poker
+
 examples/poker/  the worked example: everything poker-specific
   suite.js       prompts, readers and graders for the three tasks
   oracle/        the source of truth - equity, ICM, preflop charts
@@ -179,7 +183,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **188 tests**, including 26 that drive the MCP server over
+Complete and tested — **198 tests**, including 26 that drive the MCP server over
 live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
@@ -261,7 +265,7 @@ tests establish against published values.
 
 ```bash
 npm install
-npm test                      # 188 tests, no network
+npm test                      # 198 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```
@@ -291,47 +295,22 @@ and `docs/example-report.md` shows what the output looks like.
 
 ## Evaluating something else
 
-Nothing under `src/` mentions poker. It runs models, caches every reply, grades,
-summarises, diffs against a baseline and renders a report; a *suite* supplies
-the domain. Poker is a good first one because the answers are computable, but
-so are unit conversions, tax rules, SQL results, date arithmetic and anything
-else with a definition rather than an opinion.
-
-A suite is a module with a default export: a system prompt, and one task per
-case type. A task is a prompt, one or two readers, and a grader.
-
-```js
-export default {
-  name: 'units',
-  systemPrompt: 'You are a precise calculator. Follow the output schema exactly.',
-  tasks: {
-    convert: {
-      prompt: (k) => `Convert ${k.value} ${k.from} to ${k.to}.
-Schema: {"value": <number>}`,
-      fromObject: (k, obj) => (typeof obj.value === 'number' ? obj.value : undefined),
-      fromProse: (k, text) => Number(text.match(/-?\d+(\.\d+)?/)?.[0]),
-      grade: (k, got) => numeric({ got, expected: k.expected, tolerance: k.tolerance, unit: k.to }),
-    },
-  },
-};
-```
-
-Then point the CLI at it, with a `cases/v1.jsonl` beside it:
+Nothing under `src/` mentions poker. A *suite* supplies the domain: a system
+prompt, and one task per case type, where a task is a prompt, one or two
+readers and a grader. The whole of `examples/dates/suite.js` is eighty lines
+and has no oracle behind it, because the calendar is the oracle.
 
 ```bash
-node bin/eval.mjs --suite path/to/suite.js --model openai:gpt-4o-mini
+node examples/dates/build-cases.mjs
+node bin/eval.mjs --suite examples/dates/suite.js --model stub
 ```
 
-`numeric`, `worstOf` and `choice` from `src/graders/score.js` cover a number
-within a tolerance, a vector judged by its worst element, and a choice from a
-set - the three shapes most computable answers take. A suite that needs
-something else returns the same envelope itself: `pass`, `error`, `unit`,
-`detail`.
-
-Two rules the harness relies on. A case carries its own frozen ground truth, so
-a changed default cannot move the target under a stored run. And a grader
-reports `error` in named units, so a near miss is never confused with a
-catastrophe - and averages are never taken across different units.
+**[docs/harness.md](docs/harness.md)** is the guide: the suite and task
+interfaces, the case file format, every CLI flag, what the harness guarantees
+and why, and how to hand a model tools. The short version is that a case
+carries its own frozen ground truth, and a grader reports `error` in named
+units as well as `pass` — so a near miss is never confused with a catastrophe,
+and errors in different units are never averaged.
 
 ### What a stub run proves
 

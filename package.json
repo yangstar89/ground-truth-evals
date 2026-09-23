@@ -10,7 +10,9 @@
     "cases": "node examples/poker/build-cases.mjs",
     "eval": "node bin/eval.mjs",
     "eval:stub": "node bin/eval.mjs --model stub",
-    "results": "node bin/compare.mjs --title \"Measurements: poker-agent-evals\""
+    "results": "node bin/compare.mjs --title \"Measurements: poker-agent-evals\"",
+    "cases:dates": "node examples/dates/build-cases.mjs",
+    "eval:dates": "node bin/eval.mjs --suite examples/dates/suite.js --model stub"
   },
   "devDependencies": {
     "vitest": "^3.0.0"
