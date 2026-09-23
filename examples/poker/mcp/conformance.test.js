@@ -6,7 +6,7 @@
  * oracle as three tools; every result is one text block holding a JSON object,
  * kept small, because every field costs tokens on every call.
  *
- *   poker_equity        { hero, board?, opponents?, num_opponents?, seed? }
+ *   poker_equity        { hero, board?, opponents?, num_opponents?, variant?, seed? }
  *                       -> { equity, equity_pct, method, exact, samples, seed? }
  *                       Enumerates when the space is small enough, samples
  *                       when not, and says which. Unlike the eval, which
@@ -50,7 +50,9 @@ const SCENARIOS = ['RFI', 'vsUTG', 'vsBTN'];
 /** A result is a handful of fields, not a dump. */
 const MAX_RESULT_CHARS = 500;
 
-const cases = readFileSync('examples/poker/cases/v1.jsonl', 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+const load = (f) => readFileSync(f, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+const cases = load('examples/poker/cases/v1.jsonl');
+const variantCases = load('examples/poker/cases/variants.jsonl');
 const ofType = (t) => cases.filter((c) => c.type === t);
 
 const equityArgs = (k) => ({
@@ -155,6 +157,36 @@ describe.skipIf(!existsSync(SERVER))(`MCP server conformance (${SERVER})`, () =>
       const b = await ok('poker_equity', args);
       expect(a.equity).toBe(b.equity);
       expect(a.seed).toBe(7);
+    });
+
+    it('reproduces the ground truth of every variant case', async () => {
+      for (const k of variantCases) {
+        const r = await ok('poker_equity', { ...equityArgs(k), variant: k.variant });
+        const allowed = k.exact ? 1e-6 : 1.5;
+        expect(Math.abs(r.equity_pct - k.expected * 100), `${k.id} (${k.variant})`).toBeLessThanOrEqual(allowed);
+        expect(r.exact, `${k.id} must say whether it enumerated`).toBe(k.exact);
+        // Echoed back, so an agent can catch having asked about the wrong game.
+        expect(r.variant, k.id).toBe(k.variant);
+      }
+    }, 180000);
+
+    it('defaults to holdem, and says which game answered', async () => {
+      const r = await ok('poker_equity', { hero: 'AcAd', opponents: ['KcKd'], board: '2c 7d 9h' });
+      expect(r.variant).toBe('holdem');
+    });
+
+    it('lists the games it knows when asked for one it does not', async () => {
+      const msg = await refused('poker_equity', { hero: 'AcAd', opponents: ['KcKd'], variant: 'badugi' });
+      expect(msg).toMatch(/badugi/);
+      for (const v of ['holdem', 'plo', 'plo5', 'plo6', 'shortdeck', 'omaha-hi-lo']) expect(msg).toContain(v);
+    });
+
+    it('refuses a hand of the wrong size for the game it was asked about', async () => {
+      // Two cards is a Hold'em hand, not an Omaha one.
+      const msg = await refused('poker_equity', { hero: 'AcAd', opponents: ['KcKdQcQd'], variant: 'plo' });
+      expect(msg).toMatch(/exactly 4 cards/);
+      // And a deuce does not exist in a short deck.
+      expect(await refused('poker_equity', { hero: '2c3d', opponents: ['AhKh'], variant: 'shortdeck' })).toMatch(/not in the/i);
     });
 
     it('rejects bad cards with a message that names the problem', async () => {

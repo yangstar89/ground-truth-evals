@@ -68,7 +68,8 @@ src/             the harness, which knows nothing about poker
 examples/poker/  the worked example: everything poker-specific
   suite.js       prompts, readers and graders for the three tasks
   oracle/        the source of truth - equity, ICM, preflop charts
-  cases/v1.jsonl one spot per line: the inputs, the truth, a tolerance
+  cases/         one spot per line: the inputs, the truth, a tolerance
+                 v1.jsonl is Hold'em, variants.jsonl the other games
   mcp-server.mjs the same oracle, served to a model as MCP tools
   baselines/     graded runs, committed; every number in Results is from one
 
@@ -90,6 +91,24 @@ Two regimes, and every case records which one produced its number:
 `enumerateEquity` **throws** rather than quietly sampling when a space exceeds
 the cap, so `"exact": true` in a case file always means exact. A grader silently
 degrading into a guess is how eval suites rot.
+
+### The games
+
+Hold'em is the default; `variant` on a case selects another. Each one is in the
+set because it breaks a Hold'em habit, which is exactly where a model that has
+read a lot of Hold'em goes wrong.
+
+| Variant | Cards | What changes |
+|---|---|---|
+| `holdem` | 2 | - |
+| `plo`, `plo5`, `plo6` | 4, 5, 6 | Exactly two hole cards and three board cards play. Four board hearts and one in hand is not a flush, and the board can never be played. |
+| `shortdeck` | 2 | A 36-card deck: a flush beats a full house, and A-6-7-8-9 is the lowest straight. |
+| `omaha-hi-lo` | 4 | Half the pot to the best low of five distinct ranks eight or lower - which may be made from two different hole cards than the high hand used. |
+
+`examples/poker/cases/variants.jsonl` holds 36 spots across those games, in a
+file of its own so the Hold'em numbers stay comparable with every baseline
+already committed. Twenty-six of them enumerate exactly - including short-deck
+preflop, which is only C(32,5) boards once sixteen cards are gone.
 
 ### The graders
 
@@ -122,7 +141,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **140 tests**, including 17 that drive the MCP server over
+Complete and tested — **179 tests**, including 17 that drive the MCP server over
 live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
@@ -138,6 +157,8 @@ live stdio and check it against every case:
       model with them
 - [x] the same cases run unaided and with tools, for two models (see Results)
 - [x] harness and domain split apart, so another domain plugs in as a suite
+- [x] Omaha (4/5/6 cards), short deck and Omaha Hi-Lo, with 36 more cases
+- [ ] model runs over the variant cases
 
 ## The oracle as MCP tools
 
@@ -145,7 +166,7 @@ live stdio and check it against every case:
 
 | Tool | Takes | Returns |
 |---|---|---|
-| `poker_equity` | `hero`, `board?`, `opponents?`, `num_opponents?`, `seed?` | `equity`, `equity_pct`, `method`, `exact`, `samples`, `seed?` |
+| `poker_equity` | `hero`, `board?`, `opponents?`, `num_opponents?`, `variant?`, `seed?` | `equity`, `equity_pct`, `method`, `exact`, `samples`, `variant`, `seed?` |
 | `poker_icm` | `stacks`, `payouts` | `equities`, `pool`, `sums_to_pool` |
 | `poker_range_action` | `hand`, `position`, `scenario` | `action`, `frequencies`, `mixed`, `position`, `scenario` |
 
@@ -202,7 +223,7 @@ tests establish against published values.
 
 ```bash
 npm install
-npm test                      # 140 tests, no network
+npm test                      # 179 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```
@@ -219,6 +240,12 @@ Re-grade a stored run without paying for it again:
 
 ```bash
 node bin/eval.mjs --regrade runs/<file>.jsonl
+```
+
+Against the other games:
+
+```bash
+node bin/eval.mjs --model openai:gpt-4o-mini --cases examples/poker/cases/variants.jsonl
 ```
 
 `--save <path>` writes a baseline, `--strict` exits non-zero on any regression,

@@ -28,6 +28,9 @@
 import { equity } from '../oracle/equity.js';
 import { calculateICM } from '../oracle/icm.js';
 import { RANGES, SCENARIOS, getAction, getFrequencies } from '../oracle/ranges.js';
+import { VARIANTS, variantFor } from '../oracle/variants.js';
+
+export const VARIANT_IDS = Object.keys(VARIANTS);
 
 export const POSITIONS = ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB'];
 export const SCENARIO_IDS = ['RFI', 'vsUTG', 'vsBTN'];
@@ -53,24 +56,32 @@ export const TOOLS = [
   {
     name: 'poker_equity',
     description:
-      "Computes a Texas Hold'em hand's equity: the share of the pot it wins on average, counting a split pot as a share. " +
-      'Use this instead of estimating by hand - equity worked out mentally, especially on the flop or against more than one opponent, is unreliable. ' +
+      "Computes a poker hand's equity: the share of the pot it wins on average, counting a split pot as a share. " +
+      "Covers Texas Hold'em, pot-limit Omaha with four, five or six cards, short-deck (6+) Hold'em, and Omaha Hi-Lo eight-or-better. " +
+      'Use this instead of estimating by hand - equity worked out mentally is unreliable, and each variant has rules that trip up a Hold\'em habit. ' +
       'Every remaining board is enumerated when that is feasible (exact: true); otherwise a seeded sample is drawn and the result says exact: false.',
     inputSchema: {
       type: 'object',
       properties: {
-        hero: { type: 'string', description: 'Hero\'s two hole cards: rank (23456789TJQKA) then suit (cdhs), e.g. "AcAd" or "Ah Kh".' },
+        hero: { type: 'string', description: 'Hero\'s hole cards: rank (23456789TJQKA) then suit (cdhs), e.g. "AcAd" or "Ah Kh". Two cards for Hold\'em, four to six for Omaha.' },
         board: { type: 'string', description: 'Community cards so far: 0, 3, 4 or 5 of them, e.g. "2c 7d 9h". Omit preflop.' },
         opponents: { type: 'array', items: { type: 'string' }, description: 'Known opponent hands, one string each, e.g. ["KcKd"].' },
         num_opponents: { type: 'integer', minimum: 0, description: 'Opponents whose cards are unknown; dealt at random. Can be combined with opponents.' },
+        variant: { type: 'string', enum: VARIANT_IDS, description: 'The game. Defaults to holdem. Omaha needs four (plo), five (plo5) or six (plo6) hole cards; shortdeck uses a 36-card deck; omaha-hi-lo splits the pot with the best qualifying low.' },
         seed: { type: 'integer', description: 'Seed for sampling, to reproduce an estimate. Has no effect when the answer is exact.' },
       },
       required: ['hero'],
       additionalProperties: false,
     },
     run(args) {
-      const { hero, board = '', opponents = [], num_opponents: numOpponents = 0, seed } = args;
-      check(typeof hero === 'string' && hero.trim(), 'hero is required: two hole cards, e.g. "AcAd".');
+      const { hero, board = '', opponents = [], num_opponents: numOpponents = 0, seed, variant: variantId = 'holdem' } = args;
+      let variant;
+      try {
+        variant = variantFor(variantId);
+      } catch (e) {
+        refuse(e.message);
+      }
+      check(typeof hero === 'string' && hero.trim(), `hero is required: ${variant.holeCards} hole cards, e.g. "AcAd".`);
       check(typeof board === 'string', 'board must be a string of 0, 3, 4 or 5 cards, e.g. "2c 7d 9h".');
       check(Array.isArray(opponents) && opponents.every((o) => typeof o === 'string'), 'opponents must be a list of hands, e.g. ["KcKd"].');
       check(Number.isInteger(numOpponents) && numOpponents >= 0, 'num_opponents must be a whole number, 0 or more.');
@@ -79,10 +90,11 @@ export const TOOLS = [
 
       let r;
       try {
-        r = equity({ hero, board, opponents, numOpponents, ...(seed !== undefined ? { seed } : {}) });
+        r = equity({ hero, board, opponents, numOpponents, variant: variant.id, ...(seed !== undefined ? { seed } : {}) });
       } catch (e) {
         // The oracle's own messages already name the problem: "bad card: Xd",
-        // "duplicate card in ...", "board must have 0, 3, 4 or 5 cards".
+        // "duplicate card in ...", "hero needs exactly 4 cards in Pot-limit
+        // Omaha", "2c is not in the Short-deck Hold'em (6+) deck".
         refuse(e.message);
       }
       return {
@@ -91,6 +103,9 @@ export const TOOLS = [
         method: r.method,
         exact: r.exact,
         samples: r.samples,
+        // Echoed so an agent can see which game answered, and catch its own
+        // mistake when it meant to ask about another one.
+        variant: variant.id,
         ...(r.exact ? {} : { seed: r.seed }),
       };
     },

@@ -7,12 +7,22 @@
  * defaults changed. A committed case file means a score from today and a score
  * from next year mean the same thing.
  */
-import { equity } from '../oracle/equity.js';
+import { equity, choose } from '../oracle/equity.js';
 import { calculateICM } from '../oracle/icm.js';
 import { RANGES, SCENARIO_LABELS, getAction, getFrequencies } from '../oracle/ranges.js';
+import { variantFor } from '../oracle/variants.js';
+import { parseCards } from '../oracle/hand.js';
 
 /** Iterations for sampled spots. High enough that the noise is well inside the tolerance. */
 export const SAMPLE_ITERATIONS = 200000;
+
+/**
+ * Iterations for a sampled spot in a variant. Lower than Hold'em because each
+ * iteration scores up to a hundred and fifty combinations per player rather
+ * than one; the sampling error is about 0.35pp at 20k, still well inside the
+ * tolerance a model is judged by.
+ */
+export const VARIANT_SAMPLE_ITERATIONS = 20000;
 
 /**
  * Tolerance for a sampled equity, in percentage points.
@@ -27,21 +37,35 @@ const TOLERANCE_EXACT = 2;
 
 const pad = (n, width = 3) => String(n).padStart(width, '0');
 
-export function buildEquityCases(specs) {
+/**
+ * Equity cases. A spec may name a `variant`; Hold'em is the default and is
+ * left off the case entirely, so the Hold'em file is exactly what it was
+ * before the other games existed.
+ *
+ * Omaha scores sixty to a hundred and fifty five-card combinations per player
+ * per board, so a sampled Omaha spot at the Hold'em iteration count would take
+ * minutes for noise it does not need. The count is per variant, and the
+ * tolerance follows from it.
+ */
+export function buildEquityCases(specs, { idPrefix = 'eq', startAt = 1 } = {}) {
   return specs.map((spec, i) => {
     const seed = 1000 + i;
+    const variant = spec.variant ?? 'holdem';
+    const iterations = variant === 'holdem' ? SAMPLE_ITERATIONS : VARIANT_SAMPLE_ITERATIONS;
     const r = equity({
       hero: spec.hero,
       board: spec.board ?? '',
       opponents: spec.opponents ?? [],
       numOpponents: spec.numOpponents ?? 0,
       seed,
-      iterations: SAMPLE_ITERATIONS,
+      iterations,
+      variant,
     });
     return {
-      id: `eq-${pad(i + 1)}`,
+      id: `${idPrefix}-${pad(i + startAt)}`,
       type: 'equity',
       tag: spec.tag,
+      ...(spec.variant ? { variant: spec.variant } : {}),
       hero: spec.hero,
       board: spec.board ?? '',
       opponents: spec.opponents ?? [],
@@ -111,7 +135,29 @@ export function auditCases(cases) {
     ids.add(c.id);
     if (c.type === 'equity') {
       if (!(c.expected >= 0 && c.expected <= 1)) problems.push(`${c.id}: equity ${c.expected} outside 0..1`);
-      if (c.board.length === 0 && c.exact) problems.push(`${c.id}: preflop marked exact`);
+      // "Exact" has to mean enumerated, and the number of boards walked has
+      // to be the number that exist. Preflop is not the test: a short deck
+      // preflop is only C(32,5) boards and enumerates honestly, where a
+      // Hold'em one does not.
+      if (c.exact !== (c.method === 'enumerate')) problems.push(`${c.id}: exact ${c.exact} but method ${c.method}`);
+      // A hand of the wrong size for its game would have been computed as a
+      // different spot, or not at all.
+      const variant = variantFor(c.variant ?? 'holdem');
+      const hands = [c.hero, ...(c.opponents ?? [])];
+      for (const h of hands) {
+        const n = parseCards(h).length;
+        if (n !== variant.holeCards) problems.push(`${c.id}: ${h} has ${n} cards, ${variant.label} deals ${variant.holeCards}`);
+      }
+      const deck = new Set(variant.deck());
+      const known = parseCards([c.hero, ...(c.opponents ?? []), c.board].filter(Boolean).join(' '));
+      for (const card of known) {
+        if (!deck.has(card)) problems.push(`${c.id}: ${card} is not in the ${variant.label} deck`);
+      }
+      if (c.exact && !c.numOpponents) {
+        const toCome = 5 - parseCards(c.board || '').length;
+        const boards = choose(deck.size - known.length, toCome);
+        if (c.samples !== boards) problems.push(`${c.id}: walked ${c.samples} boards, ${boards} exist`);
+      }
     }
     if (c.type === 'icm') {
       const pool = c.payouts.reduce((a, b) => a + b, 0);

@@ -10,23 +10,31 @@
 import { CONTRACT, NUMBER } from '../../src/protocol.js';
 import { numeric, worstOf, choice } from '../../src/graders/score.js';
 import { getAction, getFrequencies } from './oracle/ranges.js';
+import { variantFor } from './oracle/variants.js';
 
 /** Equity, in percentage points of absolute error. */
 const equity = {
   prompt(kase) {
+    const variant = variantFor(kase.variant ?? 'holdem');
     const board = kase.board && kase.board.length ? kase.board : 'none (preflop)';
     const opp = kase.opponents && kase.opponents.length
       ? `known opponent hands: ${kase.opponents.join(', ')}`
       : `${kase.numOpponents} opponent(s) with unknown hole cards`;
+    const holdem = variant.id === 'holdem';
     return [
-      'You are computing Texas Hold\'em equity.',
+      `You are computing ${variant.label} equity.`,
+      // The rules of the variant are stated rather than assumed: the question
+      // is whether the model can compute the equity, not whether it recalls
+      // that Omaha makes you play exactly two hole cards. The Hold'em prompt
+      // is left exactly as it was, so its committed baselines stay comparable.
+      ...(holdem ? [] : [variant.rules]),
       '',
       `Hero hole cards: ${kase.hero}`,
       `Board: ${board}`,
       opp,
       '',
       'Give hero\'s equity: the share of the pot hero wins on average, counting',
-      'a split pot as a half. Express it as a percentage from 0 to 100.',
+      `a split pot as a ${holdem ? 'half' : 'share'}. Express it as a percentage from 0 to 100.`,
       '',
       CONTRACT,
       'Schema: {"equity_pct": <number>}',
