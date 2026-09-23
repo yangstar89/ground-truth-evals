@@ -10,6 +10,8 @@
  * claims to describe.
  */
 
+import { formatTokens, priceRun } from './usage.js';
+
 const pct = (x) => `${(x * 100).toFixed(1)}%`;
 const cell = (v) => String(v ?? '').replace(/\s*\r?\n\s*/g, ' ').replace(/\|/g, '\\|');
 
@@ -45,8 +47,13 @@ function groupBy(results, cases, key) {
   return groups;
 }
 
-/** The column each run gets: the model, and whether it had tools. */
+/**
+ * The column each run gets: the model, and whether it had tools. A caller that
+ * has two runs of the same condition - a repeat, to size the noise - sets
+ * `label` itself, since two columns with one name would silently become one.
+ */
 export function runLabel(baseline) {
+  if (baseline.label) return baseline.label;
   const model = baseline.meta.model.replace(/\+tools$/, '');
   return `${model}, ${baseline.meta.tools ? 'with tools' : 'unaided'}`;
 }
@@ -55,7 +62,7 @@ export function runLabel(baseline) {
  * One table per case set: a row per run, a column per group, and the columns
  * that say how a run failed rather than only how often.
  */
-export function renderScoreTable(baselines, cases, key) {
+export function renderScoreTable(baselines, cases, key, { prices = null } = {}) {
   const columns = [...new Set(baselines.flatMap((b) => [...groupBy(b.results, cases, key).keys()]))];
   return table(baselines.map((b) => {
     const groups = groupBy(b.results, cases, key);
@@ -65,6 +72,17 @@ export function renderScoreTable(baselines, cases, key) {
     row.all = `**${o.passed}/${o.n}**`;
     row['no answer'] = o.truncated + o.unparseable;
     row['tool calls'] = o.tools ? `${o.tools.calls} (${o.tools.failedCalls} failed)` : '-';
+    // A run whose usage covers fewer replies than it has cases is missing the
+    // tokens some replies spent, so the total is marked rather than presented
+    // as if it were complete.
+    const partial = b.meta.usage && b.meta.usage.replies < o.n;
+    row.tokens = b.meta.usage
+      ? `${formatTokens(b.meta.usage.input)} / ${formatTokens(b.meta.usage.output)}${partial ? ' \*' : ''}`
+      : '-';
+    if (prices) {
+      const cost = priceRun(b.meta.usage, prices, b.meta.model);
+      row.cost = cost === null ? '-' : `$${cost < 0.01 ? cost.toFixed(4) : cost.toFixed(2)}`;
+    }
     return row;
   }));
 }

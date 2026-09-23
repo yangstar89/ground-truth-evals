@@ -14,7 +14,12 @@
       ]
     },
     "durationMs": 0,
-    "regradedFrom": "2026-09-21T17-02-17-302-openai_gpt-4o-mini+tools.jsonl"
+    "regradedFrom": "2026-09-21T17-02-17-302-openai_gpt-4o-mini+tools.jsonl",
+    "usage": {
+      "input": 114532,
+      "output": 3356,
+      "replies": 75
+    }
   },
   "summary": {
     "overall": {

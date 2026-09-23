@@ -6,7 +6,12 @@
     "suite": "poker",
     "cases": "v1.jsonl",
     "durationMs": 0,
-    "regradedFrom": "2026-09-21T16-04-56-224-anthropic_claude-sonnet-5.jsonl"
+    "regradedFrom": "2026-09-21T16-04-56-224-anthropic_claude-sonnet-5.jsonl",
+    "usage": {
+      "input": 11402,
+      "output": 85821,
+      "replies": 66
+    }
   },
   "summary": {
     "overall": {

@@ -103,8 +103,12 @@ async function runTool(tools, calls, name, args) {
  * Attach the calls made so far to an error, so a case that failed mid-loop
  * still shows what the model tried.
  */
-function withCalls(e, calls) {
-  if (calls.length && e && typeof e === 'object') e.toolCalls = calls;
+function withCalls(e, calls, usage) {
+  if (e && typeof e === 'object') {
+    if (calls.length) e.toolCalls = calls;
+    // Everything the case spent before it failed, including the failed call.
+    e.usage = addUsage(usage, e.usage);
+  }
   return e;
 }
 
@@ -137,7 +141,9 @@ export function createOpenAIRunner({
       },
     });
     const choice = json.choices?.[0];
-    if (choice?.finish_reason === 'length') throw capped();
+    // A cut-off reply still cost what it cost - and cut-off replies are the
+    // expensive ones. The usage rides on the error so a run can report it.
+    if (choice?.finish_reason === 'length') throw Object.assign(capped(), { usage: json.usage ?? null });
     return { message: choice?.message ?? {}, usage: json.usage ?? null };
   }
 
@@ -175,7 +181,7 @@ export function createOpenAIRunner({
         }
       }
     } catch (e) {
-      throw withCalls(e, calls);
+      throw withCalls(e, calls, usage);
     }
   }
 
@@ -228,7 +234,7 @@ export function createAnthropicRunner({
       },
       timeoutMs,
     });
-    if (json.stop_reason === 'max_tokens') throw capped(maxTokens);
+    if (json.stop_reason === 'max_tokens') throw Object.assign(capped(maxTokens), { usage: json.usage ?? null });
     return json;
   }
 
@@ -265,7 +271,7 @@ export function createAnthropicRunner({
         messages.push({ role: 'user', content: results });
       }
     } catch (e) {
-      throw withCalls(e, calls);
+      throw withCalls(e, calls, usage);
     }
   }
 

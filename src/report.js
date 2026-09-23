@@ -7,6 +7,8 @@
  * the aggregate tells you whether to care and only the list tells you why.
  */
 
+import { formatTokens } from './usage.js';
+
 const pct = (x) => `${(x * 100).toFixed(1)}%`;
 const num = (x, dp = 2) => (x === null || x === undefined ? '-' : Number(x).toFixed(dp));
 
@@ -61,6 +63,7 @@ export function renderMarkdown({ meta, summary, results, cases, diff }) {
     unreadable: summary.overall.unparseable,
     'out of budget': summary.overall.truncated,
     'request failed': summary.overall.requestFailed,
+    tokens: meta.usage ? `${formatTokens(meta.usage.input)} in / ${formatTokens(meta.usage.output)} out` : '-',
     'wall clock': `${(meta.durationMs / 1000).toFixed(1)}s`,
   }]));
 

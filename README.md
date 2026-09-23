@@ -1,5 +1,8 @@
 # poker-agent-evals
 
+[![tests](https://github.com/yangstar89/poker-agent-evals/actions/workflows/test.yml/badge.svg)](https://github.com/yangstar89/poker-agent-evals/actions/workflows/test.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 An evaluation harness that scores an LLM's poker decisions against **computed
 ground truth** rather than a rubric or another model's opinion.
 
@@ -80,19 +83,31 @@ Hold'em habit is wrong:
   game is near-perfect. A tool that refuses clearly is not enough on its own:
   the model still has to repair the right thing.
 
-Read these with their limits. Each Hold'em figure is one run of 75 cases and
-each variant figure one run of 36, so a
-difference of a case or two is noise. The tools return the oracle's own
-answers, so the with-tools rows measure tool *use* - choosing the tool, passing
-the cards correctly, reporting the result faithfully - rather than the oracle,
-whose correctness the unit tests establish against published values. Runs were
-made in September 2026; gpt-4o-mini at temperature 0, Sonnet 5 at its default
-sampling (it rejects a temperature) with adaptive thinking. The baselines behind
-every number are in `examples/poker/baselines/`, and
-[docs/results.md](docs/results.md) has the full tables: per task, per game, per
-kind of spot, and every case with what each run answered against the truth. It
-is generated from those baselines by `npm run results`, so it cannot disagree
-with them.
+### How much of this is noise?
+
+Measured rather than asserted, by running two conditions a second time:
+
+| condition | run 1 | run 2 | cases that moved |
+|---|---|---|---|
+| claude-sonnet-5, unaided, Hold'em | 58/75 | 55/75 | 5 (4 broke, 1 fixed) |
+| gpt-4o-mini, with tools, variants | 32/36 | 34/36 | 4 (1 broke, 3 fixed) |
+
+So a single run is worth about ±3 cases, and gaps of that size mean nothing:
+75/75 against 74/75 is a tie. The differences the tables are actually about —
+26/75 against 75/75 with tools, or 4/36 unaided against 32/36 — are an order of
+magnitude larger than the noise. Sonnet 5 runs at its default sampling, since
+it rejects a temperature, so its repeat differs by more; gpt-4o-mini runs at
+temperature 0 and still moved 4 cases, because the tool loop gives it more than
+one way to go wrong.
+
+Two more limits. The tools return the oracle's own answers, so the with-tools
+rows measure tool *use* - choosing the tool, passing the cards correctly,
+reporting the result faithfully - rather than the oracle, whose correctness the
+unit tests establish against published values. And runs were made in September
+2026; gpt-4o-mini at temperature 0, Sonnet 5 at its default sampling with
+adaptive thinking. Token counts for each run, and the baselines behind every
+number, are in [docs/results.md](docs/results.md) and
+`examples/poker/baselines/`.
 
 ## How it works
 
@@ -183,7 +198,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **198 tests**, including 26 that drive the MCP server over
+Complete and tested — **208 tests**, including 26 that drive the MCP server over
 live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
@@ -265,7 +280,7 @@ tests establish against published values.
 
 ```bash
 npm install
-npm test                      # 198 tests, no network
+npm test                      # 208 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```

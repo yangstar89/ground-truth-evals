@@ -1,0 +1,36 @@
+# Every test here runs offline: the suites are deterministic, the MCP
+# conformance tests spawn the server as a local process, and no job needs an
+# API key. So CI proves the whole thing works on a clean machine, not just on
+# the one it was written on.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      # The case files carry frozen ground truth, and every committed baseline
+      # is scored against them. Rebuilding them has to be a no-op: if it is
+      # not, the oracle has changed under runs that were already scored, and
+      # that is the one failure this project cannot ship.
+      - name: case files reproduce exactly
+        run: |
+          npm run cases
+          npm run cases:dates
+          git diff --exit-code -- examples/poker/cases examples/dates/cases

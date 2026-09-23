@@ -3,7 +3,6 @@
     "model": "openai:gpt-4o-mini+tools",
     "temperature": 0,
     "promptVersion": "v1",
-    "durationMs": 23578,
     "suite": "poker",
     "cases": "variants.jsonl",
     "tools": {
@@ -14,7 +13,13 @@
         "poker_range_action"
       ]
     },
-    "runFile": "2026-09-23T03-26-42-900-openai_gpt-4o-mini+tools.jsonl"
+    "durationMs": 0,
+    "regradedFrom": "2026-09-23T03-26-42-900-openai_gpt-4o-mini+tools.jsonl",
+    "usage": {
+      "input": 70942,
+      "output": 2203,
+      "replies": 34
+    }
   },
   "summary": {
     "overall": {

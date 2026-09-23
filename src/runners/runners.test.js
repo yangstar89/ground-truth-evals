@@ -6,6 +6,7 @@ import { mapLimit, postJson, isFatal, HttpError } from './http.js';
 import { renderMarkdown, renderLine } from '../report.js';
 import { grade, summarise } from '../graders/index.js';
 import { demoSuite } from '../fixtures/demo-suite.js';
+import { normaliseUsage } from '../usage.js';
 
 // Tagged copies of the fixture cases: the report groups by tag, and a run
 // needs more than one task type for the per-type sections to mean anything.
@@ -113,14 +114,22 @@ describe('api runners and models that reject temperature', () => {
   // as an unreadable answer that is then scored against the model.
   const truncated = [
     ['openai', () => createOpenAIRunner({ apiKey: 'test', temperature: null }),
-      { choices: [{ finish_reason: 'length', message: { content: '{"shares": [40, 35, 22' } }] }],
+      { choices: [{ finish_reason: 'length', message: { content: '{"shares": [40, 35, 22' } }], usage: { prompt_tokens: 40, completion_tokens: 16000 } }],
     ['anthropic', () => createAnthropicRunner({ apiKey: 'test', temperature: null }),
-      { stop_reason: 'max_tokens', content: [{ type: 'thinking', thinking: '' }] }],
+      { stop_reason: 'max_tokens', content: [{ type: 'thinking', thinking: '' }], usage: { input_tokens: 40, output_tokens: 16000 } }],
   ];
   for (const [name, make, body] of truncated) {
     it(`${name}: a reply cut off at the output cap is an error, not a wrong answer`, async () => {
       vi.stubGlobal('fetch', async () => new Response(JSON.stringify(body), { status: 200 }));
       await expect(make().complete(splitCase, 'prompt')).rejects.toThrow(TruncatedError);
+    });
+
+    it(`${name}: the tokens a cut-off reply burned are reported, not lost`, async () => {
+      vi.stubGlobal('fetch', async () => new Response(JSON.stringify(body), { status: 200 }));
+      const err = await make().complete(splitCase, 'prompt').catch((e) => e);
+      // These are the costliest cases in a run: a full output budget spent
+      // for no answer. Dropping their usage understates exactly them.
+      expect(normaliseUsage(err.usage)).toEqual({ input: 40, output: 16000 });
     });
   }
 });

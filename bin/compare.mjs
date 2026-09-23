@@ -3,6 +3,11 @@
  * Build the measurements document from committed baselines.
  *
  *   node bin/compare.mjs --baselines examples/poker/baselines --cases examples/poker/cases --out docs/results.md
+ *   node bin/compare.mjs --prices prices.json    # adds a cost column
+ *
+ * Tokens are always reported; money only when a price list is given, because
+ * prices change and a committed document that quietly goes stale about what a
+ * run cost is worse than one that says nothing.
  *
  * Every number in the output is read from a baseline file. Nothing is
  * recomputed and nothing is typed in, so the document cannot drift away from
@@ -31,6 +36,7 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'));
+const prices = args.prices ? readJson(resolve(args.prices)) : null;
 const readCases = (p) => readFileSync(p, 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l));
 
 const baselines = readdirSync(resolve(args.baselines))
@@ -66,6 +72,14 @@ out.push('Every figure here is read from a committed baseline file, so this docu
 out.push('and the runs it describes cannot disagree. What the numbers mean is');
 out.push('argued in the README; this file is the evidence behind it.');
 out.push('');
+out.push('Token totals marked \* leave out replies that errored: those runs were made');
+out.push('before the harness recorded the tokens a cut-off reply had already burned,');
+out.push('and the figure is understated by exactly its most expensive cases.');
+if (prices) {
+  out.push('');
+  out.push(`Costs use the rates in \`${basename(resolve(args.prices))}\`, in dollars per million tokens.`);
+}
+out.push('');
 
 for (const [caseFile, runs] of [...sets].sort()) {
   const casePath = join(resolve(args.cases), caseFile);
@@ -76,6 +90,16 @@ for (const [caseFile, runs] of [...sets].sort()) {
   const cases = readCases(casePath);
   runs.sort((a, b) => order(a).localeCompare(order(b)));
 
+  // Repeats of one condition share a label, and two columns with the same
+  // name would collapse into one. Naming them by their baseline file keeps
+  // both visible and says which is which - "run 2" would only say which was
+  // listed second, which is not a fact about the runs.
+  const counts = new Map();
+  for (const b of runs) counts.set(runLabel(b), (counts.get(runLabel(b)) ?? 0) + 1);
+  for (const b of runs) {
+    if (counts.get(runLabel(b)) > 1) b.label = `${runLabel(b)} [${b.file.replace(/\.json$/, '')}]`;
+  }
+
   const variants = new Set(cases.map((c) => c.variant).filter(Boolean));
   out.push(`## ${caseFile} — ${cases.length} cases`);
   out.push('');
@@ -85,7 +109,7 @@ for (const [caseFile, runs] of [...sets].sort()) {
 
   out.push('### By task');
   out.push('');
-  out.push(renderScoreTable(runs, cases, 'type'));
+  out.push(renderScoreTable(runs, cases, 'type', { prices }));
 
   if (variants.size) {
     out.push('### By game');

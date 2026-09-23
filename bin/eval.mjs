@@ -24,6 +24,7 @@ import { mapLimit, isFatal } from '../src/runners/http.js';
 import { TruncatedError } from '../src/runners/api.js';
 import { connectTools } from '../src/runners/tools.js';
 import { loadEnv } from '../src/env.js';
+import { sumUsage } from '../src/usage.js';
 
 // Before any runner is constructed, so a key in .env is found.
 loadEnv();
@@ -149,6 +150,9 @@ async function main() {
           ms: Date.now() - t0,
           error: String(e.message ?? e),
           errorKind: e instanceof TruncatedError ? 'truncated' : 'request',
+          // A reply cut off at the cap burned a full budget of tokens; a run
+          // that left them out would understate exactly its costliest cases.
+          usage: e.usage ?? null,
           ...(tools ? { toolCalls: e.toolCalls ?? [] } : {}),
         };
       } finally {
@@ -185,6 +189,11 @@ async function main() {
     console.log(`  raw replies -> ${runPath}`);
     meta.runFile = basename(runPath);
   }
+
+  // What the replies cost to produce, so a report can say so and a baseline
+  // keeps it. Re-grading a stored run reports the original run's tokens: the
+  // re-grade itself is free, and that is the point of it.
+  meta.usage = sumUsage(runRows);
 
   const byId = new Map(cases.map((c) => [c.id, c]));
   const results = runRows

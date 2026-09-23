@@ -14,7 +14,12 @@
       ]
     },
     "durationMs": 0,
-    "regradedFrom": "2026-09-21T17-05-23-574-anthropic_claude-sonnet-5+tools.jsonl"
+    "regradedFrom": "2026-09-21T17-05-23-574-anthropic_claude-sonnet-5+tools.jsonl",
+    "usage": {
+      "input": 247907,
+      "output": 27436,
+      "replies": 74
+    }
   },
   "summary": {
     "overall": {

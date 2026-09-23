@@ -161,6 +161,20 @@ model calls are not, so a grader change never costs a second bill — re-run wit
 | a baseline | `--save`, committed, so later runs are compared against a fixed point |
 | `docs/results.md` | several baselines side by side, via `node bin/compare.mjs` |
 
+Every run records what it cost in tokens, including the tokens a reply burned
+before being cut off at the output cap - those are a run's most expensive cases,
+and leaving them out would understate exactly them. `bin/compare.mjs --prices
+prices.json` turns tokens into money from a price list you supply, in dollars
+per million tokens:
+
+```json
+{ "openai:gpt-4o-mini": { "input": 0.15, "output": 0.6 } }
+```
+
+Money is never inferred without one. Prices change, and a committed document
+that quietly goes stale about what a run cost is worse than one that says
+nothing.
+
 ## Things the harness insists on
 
 These exist because each one has already gone wrong here:

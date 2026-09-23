@@ -3,10 +3,15 @@
     "model": "anthropic:claude-sonnet-5",
     "temperature": null,
     "promptVersion": "v1",
-    "durationMs": 648608,
     "suite": "poker",
     "cases": "variants.jsonl",
-    "runFile": "2026-09-23T03-38-02-055-anthropic_claude-sonnet-5.jsonl"
+    "durationMs": 0,
+    "regradedFrom": "2026-09-23T03-38-02-055-anthropic_claude-sonnet-5.jsonl",
+    "usage": {
+      "input": 4858,
+      "output": 60493,
+      "replies": 21
+    }
   },
   "summary": {
     "overall": {
