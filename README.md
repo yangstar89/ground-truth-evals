@@ -141,7 +141,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **179 tests**, including 17 that drive the MCP server over
+Complete and tested — **179 tests**, including 26 that drive the MCP server over
 live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
