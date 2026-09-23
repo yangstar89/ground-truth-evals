@@ -77,7 +77,19 @@ async function main() {
   // The suite is the domain: prompts, parsing, graders, the stub's mistakes.
   // Everything else in this file is the same whatever it evaluates.
   const suite = await loadSuite(args.suite);
-  const casePath = args.cases ?? defaultCasesFor(args.suite);
+
+  // A stored run records which case file it answered, and re-grading has to
+  // load that one. Falling back to the suite's default set matched no ids at
+  // all for a variants run, scored it 0/0, and --save would then have written
+  // that out as a baseline of an empty run.
+  let header = null;
+  let storedRows = null;
+  if (args.regrade) {
+    storedRows = readFileSync(resolve(args.regrade), 'utf8').split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
+    header = storedRows[0].meta ? storedRows.shift() : null;
+  }
+  const casePath = args.cases
+    ?? (header?.meta?.cases ? resolve(dirname(defaultCasesFor(args.suite)), header.meta.cases) : defaultCasesFor(args.suite));
   const cases = loadCases(casePath);
 
   let runRows;
@@ -86,9 +98,7 @@ async function main() {
   if (args.regrade) {
     // No model call at all: replay a stored run through the current graders.
     const path = resolve(args.regrade);
-    const rows = readFileSync(path, 'utf8').split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
-    const header = rows[0].meta ? rows.shift() : null;
-    runRows = rows;
+    runRows = storedRows;
     meta = {
       model: header?.meta?.model ?? 'unknown (regrade)',
       temperature: header?.meta?.temperature ?? null,
@@ -128,10 +138,11 @@ async function main() {
     let fatal = null;
     const replies = await mapLimit(cases, Number(args.concurrency), async (kase) => {
       if (fatal) return null;
-      const prompt = buildPrompt(suite, kase);
       const t0 = Date.now();
       try {
-        const res = await runner.complete(kase, prompt);
+        // Inside the try: a case type the suite has no task for would
+        // otherwise abort the whole run and discard replies already paid for.
+        const res = await runner.complete(kase, buildPrompt(suite, kase));
         return {
           id: kase.id,
           text: res.text,
@@ -199,6 +210,12 @@ async function main() {
   const results = runRows
     .filter((r) => byId.has(r.id))
     .map((r) => gradeRow(suite, byId.get(r.id), r));
+
+  if (results.length === 0) {
+    console.error(`none of the ${runRows.length} replies match a case in ${basename(casePath)}.`);
+    console.error('That run answered a different case set; pass --cases to name it.');
+    process.exit(2);
+  }
 
   const summary = summarise(results);
 

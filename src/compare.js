@@ -132,7 +132,11 @@ export function renderCaseTable(baselines, cases) {
   };
   const byRun = baselines.map((b) => new Map(b.results.map((r) => [r.id, r])));
   return table(cases.map((kase) => {
-    const any = byRun.map((m) => m.get(kase.id)).find(Boolean);
+    // A run that never answered carries no truth, so the truth is read from
+    // the first run that did. Taking the first result of any kind blanks the
+    // column on exactly the cases where every model struggled.
+    const any = byRun.map((m) => m.get(kase.id)).find((r) => r && r.expected !== undefined)
+      ?? byRun.map((m) => m.get(kase.id)).find(Boolean);
     const row = {
       case: kase.id,
       kind: kase.variant ? `${kase.type} (${kase.variant})` : kase.type,

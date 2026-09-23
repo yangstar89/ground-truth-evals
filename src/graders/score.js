@@ -30,6 +30,19 @@ export function numeric({ got, expected, tolerance, unit, dp = 1, label = '' }) 
  * because an average would let a catastrophic seat hide behind good ones.
  */
 export function worstOf({ got, expected, tolerance, unit, dp = 1, elementName = 'element' }) {
+  // A short vector would compare undefined against a number, which is NaN,
+  // which is never greater than the running worst - so a missing element
+  // would score as a pass with an error of zero.
+  if (!Array.isArray(got) || got.length !== expected.length) {
+    return {
+      pass: false,
+      error: null,
+      unit,
+      expected,
+      got,
+      detail: `expected ${expected.length} values, got ${Array.isArray(got) ? got.length : typeof got}`,
+    };
+  }
   let worst = 0;
   let at = 0;
   for (let i = 0; i < expected.length; i++) {

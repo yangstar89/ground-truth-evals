@@ -74,6 +74,15 @@ describe('the scoring shapes a suite builds graders from', () => {
     expect(r.pass).toBe(false);
   });
 
+  it('worstOf refuses a vector of the wrong length instead of passing it', () => {
+    // A missing element compares as NaN, which is never greater than the
+    // running worst - so a short vector used to score pass with error 0.
+    const short = worstOf({ got: [40, 35], expected: [40, 35, 25], tolerance: 2, unit: 'USD' });
+    expect([short.pass, short.error]).toEqual([false, null]);
+    expect(short.detail).toMatch(/expected 3 values, got 2/);
+    expect(worstOf({ got: 'forty', expected: [40], tolerance: 2, unit: 'USD' }).pass).toBe(false);
+  });
+
   it('choice accepts any option the truth plays, and reports how often it does', () => {
     const weights = { red: 70, blue: 30, green: 0 };
     expect(choice({ got: 'red', weights }).pass).toBe(true);

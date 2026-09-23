@@ -93,15 +93,15 @@ rows counted.
 | eq-009 | equity | dominated | 74.3 | ✓ 74.5 | ✓ 74.0 | ✓ 74.5 | ✗ 56.0 | ✓ 74.5 |
 | eq-010 | equity | longshot | 12.6 | ✓ 12.5 | ✓ 12.0 | ✓ 12.6 | ✗ 18.0 | ✓ 12.6 |
 | eq-011 | equity | longshot | 14.8 | ✓ 12.5 | ✓ 12.5 | ✓ 15.1 | ✗ 18.0 | ✓ 15.1 |
-| eq-012 | equity | made-vs-draw | - | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 60.7 | ✗ 76.0 | ✓ 60.7 |
-| eq-013 | equity | made-vs-draw | - | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 50.6 | ✗ 76.0 | ✓ 50.6 |
+| eq-012 | equity | made-vs-draw | 60.7 | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 60.7 | ✗ 76.0 | ✓ 60.7 |
+| eq-013 | equity | made-vs-draw | 50.6 | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 50.6 | ✗ 76.0 | ✓ 50.6 |
 | eq-014 | equity | made-vs-draw | 76.1 | ✓ 76.1 | ✗ no answer (budget) | ✓ 76.1 | ✗ 73.7 | ✓ 76.1 |
 | eq-015 | equity | set-vs-overpair | 91.1 | ✓ 91.4 | ✓ 91.1 | ✓ 91.1 | ✗ 83.3 | ✓ 91.1 |
-| eq-016 | equity | two-pair-vs-draw | - | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 60.4 | ✗ 83.3 | ✓ 60.4 |
-| eq-017 | equity | underdog-flop | - | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 12.7 | ✗ 36.4 | ✓ 12.7 |
-| eq-018 | equity | flush-draw-vs-pair | - | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 55.0 | ✗ 36.4 | ✓ 55.1 |
-| eq-019 | equity | open-ender-vs-pair | - | ✗ no answer (budget) | ✓ 34.2 | ✓ 34.2 | ✗ 36.4 | ✓ 34.2 |
-| eq-020 | equity | dry-flop-domination | - | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 87.5 | ✗ 45.0 | ✓ 87.5 |
+| eq-016 | equity | two-pair-vs-draw | 60.4 | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 60.4 | ✗ 83.3 | ✓ 60.4 |
+| eq-017 | equity | underdog-flop | 12.7 | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 12.7 | ✗ 36.4 | ✓ 12.7 |
+| eq-018 | equity | flush-draw-vs-pair | 55.1 | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 55.0 | ✗ 36.4 | ✓ 55.1 |
+| eq-019 | equity | open-ender-vs-pair | 34.2 | ✗ no answer (budget) | ✓ 34.2 | ✓ 34.2 | ✗ 36.4 | ✓ 34.2 |
+| eq-020 | equity | dry-flop-domination | 87.5 | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 87.5 | ✗ 45.0 | ✓ 87.5 |
 | eq-021 | equity | turn-draw | 34.1 | ✓ 34.1 | ✓ 34.1 | ✓ 34.1 | ✗ 36.4 | ✓ 34.1 |
 | eq-022 | equity | turn-behind | 13.6 | ✓ 13.6 | ✓ 13.6 | ✓ 13.6 | ✗ 56.3 | ✓ 13.6 |
 | eq-023 | equity | turn-ahead | 86.4 | ✓ 86.4 | ✓ 86.4 | ✓ 86.4 | ✗ 76.0 | ✓ 86.4 |
@@ -123,9 +123,9 @@ rows counted.
 | icm-008 | icm | heads-up-lopsided | 635.0 / 365.0 | ✓ 635.0 / 365.0 | ✓ 635.0 / 365.0 | ✓ 635.0 / 365.0 | ✗ 550.0 / 450.0 | ✓ 635.0 / 365.0 |
 | icm-009 | icm | four-handed | 329.6 / 288.3 / 232.1 / 150.1 | ✓ 329.6 / 288.3 / 232.1 / 150.1 | ✓ 329.6 / 288.3 / 232.1 / 150.1 | ✓ 329.6 / 288.3 / 232.1 / 150.1 | ✗ 500.0 / 300.0 / 150.0 / 50.0 | ✓ 329.6 / 288.3 / 232.1 / 150.1 |
 | icm-010 | icm | four-handed-even | 250.0 / 250.0 / 250.0 / 250.0 | ✓ 250.0 / 250.0 / 250.0 / 250.0 | ✓ 250.0 / 250.0 / 250.0 / 250.0 | ✓ 250.0 / 250.0 / 250.0 / 250.0 | ✗ 250.0 / 150.0 / 75.0 / 25.0 | ✓ 250.0 / 250.0 / 250.0 / 250.0 |
-| icm-011 | icm | five-handed | - | ✗ no answer (budget) | ✗ no answer (budget) | ✗ no answer (budget) | ✗ 250.0 / 175.0 / 125.0 / 100.0 / 50.0 | ✓ 278.7 / 228.9 / 191.7 / 166.7 / 134.0 |
+| icm-011 | icm | five-handed | 278.7 / 228.9 / 191.7 / 166.7 / 134.0 | ✗ no answer (budget) | ✗ no answer (budget) | ✗ no answer (budget) | ✗ 250.0 / 175.0 / 125.0 / 100.0 / 50.0 | ✓ 278.7 / 228.9 / 191.7 / 166.7 / 134.0 |
 | icm-012 | icm | five-handed-leader | 361.9 / 159.5 / 159.5 / 159.5 / 159.5 | ✓ 361.9 / 159.5 / 159.5 / 159.5 / 159.5 | ✓ 361.9 / 159.5 / 159.5 / 159.5 / 159.5 | ✓ 361.9 / 159.5 / 159.5 / 159.5 / 159.5 | ✗ 400.0 / 62.5 / 62.5 / 62.5 / 62.5 | ✓ 361.9 / 159.5 / 159.5 / 159.5 / 159.5 |
-| icm-013 | icm | six-handed | - | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 215.1 / 200.7 / 183.8 / 163.6 / 137.6 / 99.2 | ✗ 164.3 / 113.3 / 83.3 / 66.8 / 50.3 / 22.3 | ✓ 215.1 / 200.7 / 183.8 / 163.6 / 137.6 / 99.2 |
+| icm-013 | icm | six-handed | 215.1 / 200.7 / 183.8 / 163.6 / 137.6 / 99.2 | ✗ no answer (budget) | ✗ no answer (budget) | ✓ 215.1 / 200.7 / 183.8 / 163.6 / 137.6 / 99.2 | ✗ 164.3 / 113.3 / 83.3 / 66.8 / 50.3 / 22.3 | ✓ 215.1 / 200.7 / 183.8 / 163.6 / 137.6 / 99.2 |
 | icm-014 | icm | final-table-bubble | 246.1 / 246.1 / 246.1 / 246.1 / 15.8 | ✓ 246.1 / 246.1 / 246.1 / 246.1 / 15.8 | ✓ 246.1 / 246.1 / 246.1 / 246.1 / 15.8 | ✓ 246.1 / 246.1 / 246.1 / 246.1 / 15.8 | ✗ 500.0 / 300.0 / 200.0 / 0.0 / 0.0 | ✓ 246.1 / 246.1 / 246.1 / 246.1 / 15.8 |
 | icm-015 | icm | more-players-than-payouts | 286.8 / 201.9 / 201.9 / 154.7 / 154.7 | ✓ 286.8 / 201.9 / 201.9 / 154.7 / 154.7 | ✓ 286.8 / 201.9 / 201.9 / 154.7 / 154.7 | ✓ 286.8 / 201.9 / 201.9 / 154.7 / 154.7 | ✗ 400.0 / 200.0 / 200.0 / 150.0 / 150.0 | ✓ 286.8 / 201.9 / 201.9 / 154.7 / 154.7 |
 | icm-016 | icm | one-payout | 500.0 / 300.0 / 200.0 | ✓ 500.0 / 300.0 / 200.0 | ✓ 500.0 / 300.0 / 200.0 | ✓ 500.0 / 300.0 / 200.0 | ✗ 1000.0 / 600.0 / 400.0 | ✓ 500.0 / 300.0 / 200.0 |
@@ -245,40 +245,40 @@ rows counted.
 | case | kind | tag | truth | anthropic:claude-sonnet-5, unaided | anthropic:claude-sonnet-5, with tools | openai:gpt-4o-mini, unaided | openai:gpt-4o-mini, with tools [openai-4o-mini-variants+tools-repeat] | openai:gpt-4o-mini, with tools [openai-4o-mini-variants+tools] |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | veq-001 | equity (plo) | plo-one-card-flush | 0.0 | ✓ 0.0 | ✓ 0.0 | ✗ 25.0 | ✓ 0.0 | ✓ 0.0 |
-| veq-002 | equity (plo) | plo-board-plays | - | ✗ no answer (budget) | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 |
-| veq-003 | equity (plo) | plo-two-must-play | - | ✗ no answer (budget) | ✓ 94.3 | ✗ 36.4 | ✓ 94.3 | ✓ 94.3 |
+| veq-002 | equity (plo) | plo-board-plays | 0.0 | ✗ no answer (budget) | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 |
+| veq-003 | equity (plo) | plo-two-must-play | 94.3 | ✗ no answer (budget) | ✓ 94.3 | ✗ 36.4 | ✓ 94.3 | ✓ 94.3 |
 | veq-004 | equity (plo) | plo-aces | 63.4 | ✗ 72.5 | ✓ 63.1 | ✗ 83.3 | ✓ 63.1 | ✓ 63.1 |
 | veq-005 | equity (plo) | plo-aces | 58.1 | ✓ 57.3 | ✓ 57.7 | ✗ 66.7 | ✓ 57.7 | ✓ 57.7 |
 | veq-006 | equity (plo) | plo-rundown | 40.0 | ✗ 43.0 | ✓ 39.0 | ✗ 29.2 | ✓ 39.0 | ✓ 39.0 |
-| veq-007 | equity (plo) | plo-wrap-vs-set | - | ✗ no answer (budget) | ✓ 42.6 | ✗ 25.0 | ✓ 42.6 | ✓ 42.6 |
+| veq-007 | equity (plo) | plo-wrap-vs-set | 42.6 | ✗ no answer (budget) | ✓ 42.6 | ✗ 25.0 | ✓ 42.6 | ✓ 42.6 |
 | veq-008 | equity (plo) | plo-nut-draw-vs-top-set | 39.6 | ✗ 0.0 | ✓ 39.6 | ✗ 0.0 | ✓ 39.6 | ✓ 39.6 |
-| veq-009 | equity (plo) | plo-made-vs-draw | - | ✗ no answer (budget) | ✓ 84.8 | ✗ 75.0 | ✓ 84.8 | ✓ 84.8 |
+| veq-009 | equity (plo) | plo-made-vs-draw | 84.8 | ✗ no answer (budget) | ✓ 84.8 | ✗ 75.0 | ✓ 84.8 | ✓ 84.8 |
 | veq-010 | equity (plo) | plo-multiway | 54.5 | ✗ 61.5 | ✓ 54.6 | ✗ 66.7 | ✓ 54.6 | ✓ 54.6 |
-| veq-011 | equity (plo) | plo-multiway | - | ✗ no answer (budget) | ✓ 25.8 | ✗ 56.3 | ✓ 25.8 | ✓ 25.8 |
-| veq-012 | equity (plo) | plo-turn | - | ✗ no answer (budget) | ✓ 30.0 | ✗ 36.4 | ✓ 30.0 | ✓ 30.0 |
+| veq-011 | equity (plo) | plo-multiway | 25.8 | ✗ no answer (budget) | ✓ 25.8 | ✗ 56.3 | ✓ 25.8 | ✓ 25.8 |
+| veq-012 | equity (plo) | plo-turn | 30.0 | ✗ no answer (budget) | ✓ 30.0 | ✗ 36.4 | ✓ 30.0 | ✓ 30.0 |
 | veq-013 | equity (plo5) | plo5-aces | 61.9 | ✗ 65.5 | ✓ 62.2 | ✗ 66.7 | ✓ 63.1 | ✗ 49.8 |
 | veq-014 | equity (plo5) | plo5-one-card-flush | 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 |
-| veq-015 | equity (plo5) | plo5-draw-heavy | - | ✗ no answer (budget) | ✓ 57.0 | ✗ 36.4 | ✗ 25.5 | ✗ 25.5 |
-| veq-016 | equity (plo5) | plo5-turn | - | ✗ no answer (budget) | ✓ 31.6 | ✗ 36.4 | ✓ 30.0 | ✗ no answer (budget) |
+| veq-015 | equity (plo5) | plo5-draw-heavy | 57.0 | ✗ no answer (budget) | ✓ 57.0 | ✗ 36.4 | ✗ 25.5 | ✗ 25.5 |
+| veq-016 | equity (plo5) | plo5-turn | 31.6 | ✗ no answer (budget) | ✓ 31.6 | ✗ 36.4 | ✓ 30.0 | ✗ no answer (budget) |
 | veq-017 | equity (plo6) | plo6-aces | 58.0 | ✗ 68.5 | ✓ 58.5 | ✗ 66.7 | ✗ 45.2 | ✓ 58.5 |
 | veq-018 | equity (plo6) | plo6-one-card-flush | 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 | ✓ 0.0 |
-| veq-019 | equity (plo6) | plo6-draw-heavy | - | ✗ no answer (budget) | ✓ 67.3 | ✗ 0.0 | ✓ 67.3 | ✓ 67.3 |
-| veq-020 | equity (plo6) | plo6-flop | - | ✗ no answer (budget) | ✓ 74.9 | ✗ 56.3 | ✓ 74.9 | ✓ 74.9 |
+| veq-019 | equity (plo6) | plo6-draw-heavy | 67.3 | ✗ no answer (budget) | ✓ 67.3 | ✗ 0.0 | ✓ 67.3 | ✓ 67.3 |
+| veq-020 | equity (plo6) | plo6-flop | 74.9 | ✗ no answer (budget) | ✓ 74.9 | ✗ 56.3 | ✓ 74.9 | ✓ 74.9 |
 | veq-021 | equity (shortdeck) | short-flush-beats-boat | 6.9 | ✓ 6.9 | ✓ 6.9 | ✗ 66.7 | ✓ 6.9 | ✓ 6.9 |
 | veq-022 | equity (shortdeck) | short-flush-beats-boat | 93.1 | ✓ 93.1 | ✓ 93.1 | ✗ 66.7 | ✓ 93.1 | ✓ 93.1 |
 | veq-023 | equity (shortdeck) | short-wheel-straight | 88.5 | ✗ 93.1 | ✓ 88.5 | ✗ 36.4 | ✓ 88.5 | ✓ 88.5 |
 | veq-024 | equity (shortdeck) | short-premium | 74.3 | ✗ 81.7 | ✓ 74.3 | ✗ 82.3 | ✓ 74.3 | ✓ 74.3 |
 | veq-025 | equity (shortdeck) | short-overcards | 54.3 | ✓ 53.7 | ✓ 54.3 | ✗ 44.0 | ✓ 54.3 | ✓ 54.3 |
 | veq-026 | equity (shortdeck) | short-connectors | 39.7 | ✓ 39.5 | ✓ 39.7 | ✗ 29.6 | ✓ 39.7 | ✓ 39.7 |
-| veq-027 | equity (shortdeck) | short-draw-vs-pair | - | ✗ no answer (budget) | ✓ 52.0 | ✗ 36.4 | ✓ 52.0 | ✓ 52.0 |
+| veq-027 | equity (shortdeck) | short-draw-vs-pair | 52.0 | ✗ no answer (budget) | ✓ 52.0 | ✗ 36.4 | ✓ 52.0 | ✓ 52.0 |
 | veq-028 | equity (shortdeck) | short-multiway | 55.9 | ✗ 68.4 | ✓ 56.1 | ✗ 82.0 | ✓ 56.1 | ✓ 56.1 |
-| veq-029 | equity (omaha-hi-lo) | hilo-made-low | - | ✗ no answer (budget) | ✓ 61.0 | ✗ 50.0 | ✓ 61.0 | ✓ 61.0 |
-| veq-030 | equity (omaha-hi-lo) | hilo-counterfeit-risk | - | ✗ no answer (budget) | ✓ 73.5 | ✗ 42.0 | ✓ 73.5 | ✗ no answer (budget) |
+| veq-029 | equity (omaha-hi-lo) | hilo-made-low | 61.0 | ✗ no answer (budget) | ✓ 61.0 | ✗ 50.0 | ✓ 61.0 | ✓ 61.0 |
+| veq-030 | equity (omaha-hi-lo) | hilo-counterfeit-risk | 73.5 | ✗ no answer (budget) | ✓ 73.5 | ✗ 42.0 | ✓ 73.5 | ✗ no answer (budget) |
 | veq-031 | equity (omaha-hi-lo) | hilo-no-low-board | 4.4 | ✓ 5.5 | ✓ 4.4 | ✗ 0.0 | ✓ 4.4 | ✓ 4.4 |
-| veq-032 | equity (omaha-hi-lo) | hilo-scoop-draw | - | ✗ no answer (budget) | ✓ 39.8 | ✗ 0.0 | ✓ 39.8 | ✓ 39.8 |
+| veq-032 | equity (omaha-hi-lo) | hilo-scoop-draw | 39.8 | ✗ no answer (budget) | ✓ 39.8 | ✗ 0.0 | ✓ 39.8 | ✓ 39.8 |
 | veq-033 | equity (omaha-hi-lo) | hilo-aces | 65.0 | ✗ 87.5 | ✓ 65.0 | ✗ 38.5 | ✓ 64.9 | ✓ 64.9 |
 | veq-034 | equity (omaha-hi-lo) | hilo-high-only | 45.1 | ✗ 29.0 | ✓ 45.1 | ✗ 66.7 | ✓ 45.1 | ✓ 45.1 |
-| veq-035 | equity (omaha-hi-lo) | hilo-quartered | - | ✗ no answer (budget) | ✓ 66.1 | ✗ 50.0 | ✓ 66.1 | ✓ 66.1 |
+| veq-035 | equity (omaha-hi-lo) | hilo-quartered | 66.1 | ✗ no answer (budget) | ✓ 66.1 | ✗ 50.0 | ✓ 66.1 | ✓ 66.1 |
 | veq-036 | equity (omaha-hi-lo) | hilo-multiway | 43.3 | ✗ 57.3 | ✓ 43.5 | ✓ 45.0 | ✓ 43.5 | ✓ 43.5 |
 
 ### How these runs were made

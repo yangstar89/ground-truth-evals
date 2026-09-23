@@ -1,8 +1,8 @@
 # Eval run — stub(seed=1,skill=0.55)
 
-| model | temperature | cases | pass rate | schema ignored | unreadable | out of budget | request failed | wall clock |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| stub(seed=1,skill=0.55) | n/a | 75 | 58.7% | 13 | 2 | 0 | 0 | 0.0s |
+| model | temperature | cases | pass rate | schema ignored | unreadable | out of budget | request failed | tokens | wall clock |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| stub(seed=1,skill=0.55) | n/a | 75 | 58.7% | 13 | 2 | 0 | 0 | - | 0.0s |
 
 ## By task
 

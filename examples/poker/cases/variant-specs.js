@@ -63,7 +63,7 @@ const SHORT = [
   { tag: 'short-premium', hero: 'AcAd', opponents: ['KhKs'] },
   { tag: 'short-overcards', hero: 'AhKh', opponents: ['QsQd'] },
   { tag: 'short-connectors', hero: 'Ts9s', opponents: ['AcAd'] },
-  { tag: 'short-draw-vs-pair', hero: 'Jh Th'.replace(/ /g, ''), opponents: ['AcAd'], board: '9c 8d 6s' },
+  { tag: 'short-draw-vs-pair', hero: 'JhTh', opponents: ['AcAd'], board: '9c 8d 6s' },
   { tag: 'short-multiway', hero: 'AcAd', numOpponents: 2 },
 ];
 

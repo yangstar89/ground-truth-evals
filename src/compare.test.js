@@ -81,6 +81,16 @@ describe('the case table', () => {
     expect(md).toContain('40.0 / 35.0 / 25.0');
   });
 
+  it('reads the truth from a run that answered, not from one that did not', () => {
+    // A truncated result carries no expected value. Reading the truth from
+    // the first run of any kind blanks the column on exactly the cases where
+    // every model struggled - which are the rows worth reading.
+    const noAnswer = { ...unaided, label: 'model-a, unaided', results: [{ id: 'sum-2', type: 'sum', pass: false, truncated: true }] };
+    const answered = { ...withTools, label: 'model-a, with tools' };
+    const md = renderCaseTable([noAnswer, answered], [cases[1]]);
+    expect(md).toContain('| sum-2 | sum | hard | 55.0 |');
+  });
+
   it('names a non-answer for what it was, rather than showing it as a wrong value', () => {
     const budget = { ...unaided, results: [{ id: 'sum-1', type: 'sum', pass: false, truncated: true }] };
     expect(renderCaseTable([budget], [cases[0]])).toContain('no answer (budget)');

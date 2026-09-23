@@ -60,10 +60,11 @@ const shortDeck = () => {
  * The standard ruleset (as played on the Triton tour) keeps the usual order
  * except that a flush beats a full house, because with sixteen cards gone a
  * flush is the rarer hand. Some rooms also rank trips above a straight; that
- * is a second ruleset rather than the default, so it is a flag on the
- * variant rather than an assumption baked into the scorer.
+ * is a different game, and adding it here as an untested switch inside the
+ * ground truth would be worse than not having it - it belongs as its own
+ * variant, with its own cases, if anyone wants it scored.
  */
-export function scoreFivePackedShort(a, b, c, d, e, tripsBeatStraight = false) {
+export function scoreFivePackedShort(a, b, c, d, e) {
   const base = scoreFivePacked(a, b, c, d, e);
   let category = Math.floor(base / 16 ** 5);
   const tiebreak = base % 16 ** 5;
@@ -78,33 +79,29 @@ export function scoreFivePackedShort(a, b, c, d, e, tripsBeatStraight = false) {
       // The nine plays high, which keeps it the lowest straight of all.
       const high = SIX + 3;
       const cat = suited ? CATEGORY.STRAIGHT_FLUSH : CATEGORY.STRAIGHT;
-      return rankShort(cat, high * 16 ** 4, tripsBeatStraight);
+      return rankShort(cat, high * 16 ** 4);
     }
   }
-  return rankShort(category, tiebreak, tripsBeatStraight);
+  return rankShort(category, tiebreak);
 }
 
 /** Re-order the categories for short deck, keeping tiebreaks untouched. */
-function rankShort(category, tiebreak, tripsBeatStraight) {
+function rankShort(category, tiebreak) {
   let c = category;
-  // Flush above full house.
+  // Flush above full house, and nothing else moves.
   if (category === CATEGORY.FLUSH) c = CATEGORY.FULL_HOUSE;
   else if (category === CATEGORY.FULL_HOUSE) c = CATEGORY.FLUSH;
-  if (tripsBeatStraight) {
-    if (c === CATEGORY.TRIPS) c = CATEGORY.STRAIGHT;
-    else if (c === CATEGORY.STRAIGHT) c = CATEGORY.TRIPS;
-  }
   return c * 16 ** 5 + tiebreak;
 }
 
 const FIVE_OF_SEVEN_SHORT = combinations(7, 5);
 
 /** Best five of seven, under short-deck rules. */
-function scoreBestShort(seven, tripsBeatStraight) {
+function scoreBestShort(seven) {
   let best = -1;
   for (let i = 0; i < FIVE_OF_SEVEN_SHORT.length; i++) {
     const k = FIVE_OF_SEVEN_SHORT[i];
-    const s = scoreFivePackedShort(seven[k[0]], seven[k[1]], seven[k[2]], seven[k[3]], seven[k[4]], tripsBeatStraight);
+    const s = scoreFivePackedShort(seven[k[0]], seven[k[1]], seven[k[2]], seven[k[3]], seven[k[4]]);
     if (s > best) best = s;
   }
   return best;
@@ -239,7 +236,7 @@ export const VARIANTS = {
       seven[0] = hole[0];
       seven[1] = hole[1];
       for (let i = 0; i < 5; i++) seven[2 + i] = board[i];
-      return scoreBestShort(seven, false);
+      return scoreBestShort(seven);
     },
   },
   'omaha-hi-lo': {

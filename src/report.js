@@ -63,7 +63,9 @@ export function renderMarkdown({ meta, summary, results, cases, diff }) {
     unreadable: summary.overall.unparseable,
     'out of budget': summary.overall.truncated,
     'request failed': summary.overall.requestFailed,
-    tokens: meta.usage ? `${formatTokens(meta.usage.input)} in / ${formatTokens(meta.usage.output)} out` : '-',
+    // A run with no usage at all reports nothing rather than "0 in / 0 out",
+    // which would read as a run that somehow cost nothing.
+    tokens: meta.usage?.replies ? `${formatTokens(meta.usage.input)} in / ${formatTokens(meta.usage.output)} out` : '-',
     'wall clock': `${(meta.durationMs / 1000).toFixed(1)}s`,
   }]));
 

@@ -297,6 +297,14 @@ describe('report', () => {
     expect(row.endsWith('|')).toBe(true);
   });
 
+  it('says nothing about tokens for a run that recorded none, rather than zero', () => {
+    const md = renderMarkdown({ meta, summary, results, cases, diff: null });
+    // "0 in / 0 out" would read as a run that somehow cost nothing.
+    expect(md).not.toContain('0 in / 0 out');
+    const withTokens = renderMarkdown({ meta: { ...meta, usage: { input: 1200, output: 340, replies: 3 } }, summary, results, cases, diff: null });
+    expect(withTokens).toContain('1k in / 340 out');
+  });
+
   it('renders every section, and never blends the task types', () => {
     const md = renderMarkdown({ meta, summary, results, cases });
     expect(md).toContain('# Eval run — stub(test)');

@@ -198,7 +198,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **208 tests**, including 26 that drive the MCP server over
+Complete and tested — **211 tests**, including 21 that drive the MCP server over
 live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
@@ -280,7 +280,7 @@ tests establish against published values.
 
 ```bash
 npm install
-npm test                      # 208 tests, no network
+npm test                      # 211 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```
