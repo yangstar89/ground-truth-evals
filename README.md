@@ -10,6 +10,11 @@ and neither of which is cheap to re-run. Poker is arithmetic. `AcAd` against
 remaining board. That makes every grader here deterministic, every run
 reproducible, and re-grading free.
 
+The harness itself knows nothing about poker: `src/` runs models, caches
+replies, grades, diffs and reports, and a *suite* supplies the domain. Poker is
+the worked example, in `examples/poker/`. See
+[Evaluating something else](#evaluating-something-else).
+
 ## Results
 
 The same 75 cases, the same prompt, each model run unaided and then with the
@@ -48,24 +53,32 @@ the cards correctly, reporting the result faithfully - rather than the oracle,
 whose correctness the unit tests establish against published values. Runs were
 made in September 2026; gpt-4o-mini at temperature 0, Sonnet 5 at its default
 sampling (it rejects a temperature) with adaptive thinking. The baselines behind
-every number are in `baselines/`.
+every number are in `examples/poker/baselines/`.
 
 ## How it works
 
 ```
-cases/*.jsonl   one spot per line: the inputs, the oracle's answer, a tolerance
-src/oracle/     the source of truth - equity, ICM, preflop charts
-src/protocol.js one case -> one prompt; one reply -> one value
-src/graders/    a value -> a score, plus run summaries and baseline diffs
-src/runners/    OpenAI, Anthropic and a stub; the tool loop; the MCP client
-src/mcp/        the oracle as MCP tools, and the tests the server must pass
-runs/           every raw reply, cached, so re-grading costs nothing
-baselines/      graded runs, committed; every number in Results comes from one
+src/             the harness, which knows nothing about poker
+  suite.js       the seam: what a domain must provide
+  protocol.js    one case -> one prompt; one reply -> one value
+  graders/       a value -> a score, plus run summaries and baseline diffs
+  runners/       OpenAI, Anthropic and a stub; the tool loop; the MCP client
+  report.js      a run -> markdown, never blending the task types
+
+examples/poker/  the worked example: everything poker-specific
+  suite.js       prompts, readers and graders for the three tasks
+  oracle/        the source of truth - equity, ICM, preflop charts
+  cases/v1.jsonl one spot per line: the inputs, the truth, a tolerance
+  mcp-server.mjs the same oracle, served to a model as MCP tools
+  baselines/     graded runs, committed; every number in Results is from one
+
+runs/            every raw reply, cached, so re-grading costs nothing
 ```
 
 ### The oracle
 
-`src/oracle/` computes the right answer independently of anything being tested.
+`examples/poker/oracle/` computes the right answer independently of anything
+being tested.
 
 Two regimes, and every case records which one produced its number:
 
@@ -109,7 +122,7 @@ specific cases regress, and those are the ones worth reading.
 
 ## Status
 
-Complete and tested — **130 tests**, including 17 that drive the MCP server over
+Complete and tested — **140 tests**, including 17 that drive the MCP server over
 live stdio and check it against every case:
 
 - [x] hand evaluator, cards, parsing
@@ -124,10 +137,11 @@ live stdio and check it against every case:
 - [x] MCP server exposing the oracle as tools, and a `--tools` mode that runs a
       model with them
 - [x] the same cases run unaided and with tools, for two models (see Results)
+- [x] harness and domain split apart, so another domain plugs in as a suite
 
 ## The oracle as MCP tools
 
-`bin/mcp-server.mjs` serves the oracle over stdio to any MCP client:
+`examples/poker/mcp-server.mjs` serves the oracle over stdio to any MCP client:
 
 | Tool | Takes | Returns |
 |---|---|---|
@@ -152,10 +166,10 @@ Install, after `npm install`, with the absolute path to this checkout:
 
 ```bash
 # Claude Code
-claude mcp add poker-oracle -- node /path/to/poker-agent-evals/bin/mcp-server.mjs
+claude mcp add poker-oracle -- node /path/to/poker-agent-evals/examples/poker/mcp-server.mjs
 
 # Codex
-codex mcp add poker-oracle -- node /path/to/poker-agent-evals/bin/mcp-server.mjs
+codex mcp add poker-oracle -- node /path/to/poker-agent-evals/examples/poker/mcp-server.mjs
 ```
 
 Cursor, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
@@ -165,7 +179,7 @@ Cursor, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
   "mcpServers": {
     "poker-oracle": {
       "command": "node",
-      "args": ["/path/to/poker-agent-evals/bin/mcp-server.mjs"]
+      "args": ["/path/to/poker-agent-evals/examples/poker/mcp-server.mjs"]
     }
   }
 }
@@ -174,8 +188,8 @@ Cursor, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
 Run the eval with the tools available to the model:
 
 ```bash
-node bin/eval.mjs --model anthropic:claude-sonnet-5 --tools "node bin/mcp-server.mjs" \
-  --baseline baselines/anthropic-sonnet-5.json
+node bin/eval.mjs --model anthropic:claude-sonnet-5 --tools "node examples/poker/mcp-server.mjs" \
+  --baseline examples/poker/baselines/anthropic-sonnet-5.json
 ```
 
 The prompt is unchanged, so the tools are the only difference between that run
@@ -188,7 +202,7 @@ tests establish against published values.
 
 ```bash
 npm install
-npm test                      # 130 tests, no network
+npm test                      # 140 tests, no network
 npm run cases                 # regenerate cases/v1.jsonl from the specs
 npm run eval:stub             # the whole pipeline, no API key, no spend
 ```
@@ -198,7 +212,7 @@ Against a real model:
 ```bash
 cp .env.example .env          # then fill in a key; .env is gitignored
 node bin/eval.mjs --model openai:gpt-4o-mini --concurrency 6
-node bin/eval.mjs --model anthropic:claude-sonnet-5 --baseline baselines/stub-seed1.json
+node bin/eval.mjs --model anthropic:claude-sonnet-5 --baseline examples/poker/baselines/stub-seed1.json
 ```
 
 Re-grade a stored run without paying for it again:
@@ -209,6 +223,50 @@ node bin/eval.mjs --regrade runs/<file>.jsonl
 
 `--save <path>` writes a baseline, `--strict` exits non-zero on any regression,
 and `docs/example-report.md` shows what the output looks like.
+
+## Evaluating something else
+
+Nothing under `src/` mentions poker. It runs models, caches every reply, grades,
+summarises, diffs against a baseline and renders a report; a *suite* supplies
+the domain. Poker is a good first one because the answers are computable, but
+so are unit conversions, tax rules, SQL results, date arithmetic and anything
+else with a definition rather than an opinion.
+
+A suite is a module with a default export: a system prompt, and one task per
+case type. A task is a prompt, one or two readers, and a grader.
+
+```js
+export default {
+  name: 'units',
+  systemPrompt: 'You are a precise calculator. Follow the output schema exactly.',
+  tasks: {
+    convert: {
+      prompt: (k) => `Convert ${k.value} ${k.from} to ${k.to}.
+Schema: {"value": <number>}`,
+      fromObject: (k, obj) => (typeof obj.value === 'number' ? obj.value : undefined),
+      fromProse: (k, text) => Number(text.match(/-?\d+(\.\d+)?/)?.[0]),
+      grade: (k, got) => numeric({ got, expected: k.expected, tolerance: k.tolerance, unit: k.to }),
+    },
+  },
+};
+```
+
+Then point the CLI at it, with a `cases/v1.jsonl` beside it:
+
+```bash
+node bin/eval.mjs --suite path/to/suite.js --model openai:gpt-4o-mini
+```
+
+`numeric`, `worstOf` and `choice` from `src/graders/score.js` cover a number
+within a tolerance, a vector judged by its worst element, and a choice from a
+set - the three shapes most computable answers take. A suite that needs
+something else returns the same envelope itself: `pass`, `error`, `unit`,
+`detail`.
+
+Two rules the harness relies on. A case carries its own frozen ground truth, so
+a changed default cannot move the target under a stored run. And a grader
+reports `error` in named units, so a near miss is never confused with a
+catastrophe - and averages are never taken across different units.
 
 ### What a stub run proves
 

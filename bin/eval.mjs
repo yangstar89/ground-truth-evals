@@ -6,7 +6,8 @@
  *   node bin/eval.mjs --model openai:gpt-4o-mini --concurrency 6
  *   node bin/eval.mjs --model stub --baseline baselines/stub.json
  *   node bin/eval.mjs --regrade runs/2026-09-21T12-00-00-stub.jsonl
- *   node bin/eval.mjs --model anthropic:claude-sonnet-5 --tools "node bin/mcp-server.mjs"
+ *   node bin/eval.mjs --model anthropic:claude-sonnet-5 --tools "node examples/poker/mcp-server.mjs"
+ *   node bin/eval.mjs --suite examples/poker/suite.js --model stub
  *
  * Every raw reply is written to runs/ before grading. That ordering is on
  * purpose: grading is free and repeatable, model calls are neither, so a
@@ -17,6 +18,7 @@ import { resolve, basename, dirname } from 'node:path';
 import { createRunner } from '../src/runners/index.js';
 import { buildPrompt } from '../src/protocol.js';
 import { gradeRow, summarise, diffRuns } from '../src/graders/index.js';
+import { loadSuite } from '../src/suite.js';
 import { renderMarkdown, renderLine } from '../src/report.js';
 import { mapLimit, isFatal } from '../src/runners/http.js';
 import { TruncatedError } from '../src/runners/api.js';
@@ -27,7 +29,14 @@ import { loadEnv } from '../src/env.js';
 loadEnv();
 
 function parseArgs(argv) {
-  const args = { model: 'stub', cases: 'cases/v1.jsonl', concurrency: 6, seed: 1, skill: 0.8 };
+  const args = {
+    model: 'stub',
+    suite: 'examples/poker/suite.js',
+    cases: null,
+    concurrency: 6,
+    seed: 1,
+    skill: 0.8,
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) continue;
@@ -54,12 +63,21 @@ function loadCases(path) {
   return text.split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
 }
 
+/** A suite's own cases sit beside it, so --suite alone is enough to run one. */
+function defaultCasesFor(suitePath) {
+  return resolve(dirname(resolve(suitePath)), 'cases', 'v1.jsonl');
+}
+
 function stamp() {
   return new Date().toISOString().replace(/[:.]/g, '-').replace('Z', '');
 }
 
 async function main() {
-  const cases = loadCases(args.cases);
+  // The suite is the domain: prompts, parsing, graders, the stub's mistakes.
+  // Everything else in this file is the same whatever it evaluates.
+  const suite = await loadSuite(args.suite);
+  const casePath = args.cases ?? defaultCasesFor(args.suite);
+  const cases = loadCases(casePath);
 
   let runRows;
   let meta;
@@ -74,6 +92,7 @@ async function main() {
       model: header?.meta?.model ?? 'unknown (regrade)',
       temperature: header?.meta?.temperature ?? null,
       promptVersion: header?.meta?.promptVersion ?? 'unknown',
+      suite: header?.meta?.suite ?? suite.name,
       ...(header?.meta?.tools ? { tools: header.meta.tools } : {}),
       durationMs: 0,
       regradedFrom: basename(path),
@@ -91,7 +110,7 @@ async function main() {
       tools = await connectTools(String(args.tools));
       console.log(`tools from "${tools.command}": ${tools.tools.map((t) => t.name).join(', ')}`);
     }
-    const runner = createRunner(args.model, {
+    const runner = createRunner(suite, args.model, {
       seed: args.seed,
       skill: args.skill,
       temperature: args.temperature,
@@ -105,7 +124,7 @@ async function main() {
     let fatal = null;
     const replies = await mapLimit(cases, Number(args.concurrency), async (kase) => {
       if (fatal) return null;
-      const prompt = buildPrompt({ ...kase, type: kase.type });
+      const prompt = buildPrompt(suite, kase);
       const t0 = Date.now();
       try {
         const res = await runner.complete(kase, prompt);
@@ -151,7 +170,8 @@ async function main() {
       temperature: runner.temperature ?? null,
       promptVersion: PROMPT_VERSION,
       durationMs: Date.now() - started,
-      cases: basename(args.cases),
+      suite: suite.name,
+      cases: basename(casePath),
       ...(tools ? { tools: { command: tools.command, names: tools.tools.map((t) => t.name) } } : {}),
     };
     runRows = replies;
@@ -166,7 +186,7 @@ async function main() {
   const byId = new Map(cases.map((c) => [c.id, c]));
   const results = runRows
     .filter((r) => byId.has(r.id))
-    .map((r) => gradeRow(byId.get(r.id), r));
+    .map((r) => gradeRow(suite, byId.get(r.id), r));
 
   const summary = summarise(results);
 

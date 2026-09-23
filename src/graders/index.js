@@ -1,24 +1,25 @@
 /**
- * Graders: they turn one model reply into a score.
+ * Grading: one model reply becomes one score, and a run becomes numbers a
+ * report can show.
  *
- * All three are deterministic - a number compared against the oracle within a
- * tolerance, or an action compared against a chart. None of them asks a model
- * to judge another model, which is what makes a run reproducible and free to
- * re-grade from the cached replies.
+ * The scoring itself belongs to the suite - only it knows what a case's units
+ * are and how close is close enough. What lives here is everything that must
+ * behave the same whatever the domain: the envelope every result carries, the
+ * three kinds of non-answer, the roll-up, and the baseline diff.
  *
- * Every grader returns the same envelope:
+ * Every result carries:
  *
  *   pass       did it meet the bar for this case
  *   error      the graded distance from truth, in the case's own units
+ *   unit       what those units are
  *   detail     a short human-readable line for the failure list
- *   recovered  the model ignored the output contract and the value came from prose
+ *   recovered  the model ignored the output contract
  *
  * `error` matters as much as `pass`. A binary verdict cannot tell a near miss
  * from a catastrophe, and the difference between "2 points out" and "40 points
  * out" is most of what you want to know when comparing two models.
  */
 import { parseAnswer } from '../protocol.js';
-import { getAction, getFrequencies } from '../oracle/ranges.js';
 
 function unparseable(kase, parsed) {
   return {
@@ -32,94 +33,18 @@ function unparseable(kase, parsed) {
   };
 }
 
-/** Equity, in percentage points of absolute error. */
-function gradeEquity(kase, parsed) {
-  const expectedPct = kase.expected * 100;
-  const got = parsed.value;
-  const error = Math.abs(got - expectedPct);
-  const tolerance = kase.tolerancePct ?? 2;
-  return {
-    id: kase.id,
-    type: 'equity',
-    pass: error <= tolerance,
-    error,
-    unit: 'percentage points',
-    expected: expectedPct,
-    got,
-    recovered: parsed.recovered,
-    detail: `said ${got.toFixed(1)}%, truth ${expectedPct.toFixed(1)}% (${error.toFixed(1)}pp out, tolerance ${tolerance})`,
-  };
-}
-
-/** ICM, by the largest absolute error across seats. */
-function gradeIcm(kase, parsed) {
-  const got = parsed.value;
-  const expected = kase.expected;
-  let worst = 0;
-  let worstSeat = 0;
-  for (let i = 0; i < expected.length; i++) {
-    const e = Math.abs(got[i] - expected[i]);
-    if (e > worst) { worst = e; worstSeat = i; }
-  }
-  // A tolerance proportional to the prize pool: an absolute one would be
-  // trivially easy on a big pool and impossible on a small one.
-  const pool = kase.payouts.reduce((a, b) => a + b, 0);
-  const tolerance = kase.tolerance ?? pool * 0.02;
-  return {
-    id: kase.id,
-    type: 'icm',
-    pass: worst <= tolerance,
-    error: worst,
-    unit: kase.currency ?? 'chips',
-    expected,
-    got,
-    recovered: parsed.recovered,
-    detail: `worst seat ${worstSeat + 1}: said ${got[worstSeat].toFixed(1)}, truth ${expected[worstSeat].toFixed(1)} (${worst.toFixed(1)} out, tolerance ${tolerance.toFixed(1)})`,
-  };
-}
-
-/**
- * Preflop action, against the chart.
- *
- * Mixed strategies are the interesting case: where the chart raises a hand 60%
- * and folds it 40%, both answers are defensible, so anything the chart plays
- * with a non-zero frequency passes - and the frequency is reported, so a model
- * that always picks the 5% branch is still visible in the numbers.
- */
-function gradeRange(kase, parsed) {
-  const entry = kase.entry;
-  const freqs = getFrequencies(entry);
-  const primary = getAction(entry);
-  const got = parsed.value;
-  const freq = freqs[got] ?? 0;
-  const mixed = Object.values(freqs).filter((f) => f > 0).length > 1;
-  return {
-    id: kase.id,
-    type: 'range',
-    pass: freq > 0,
-    // Distance from the chart's own most-frequent action, in frequency points.
-    error: (freqs[primary] ?? 0) - freq,
-    unit: 'frequency points',
-    expected: primary,
-    got,
-    mixed,
-    frequency: freq,
-    recovered: parsed.recovered,
-    detail: mixed
-      ? `said ${got}, chart plays it ${freq}% of the time (most frequent: ${primary} at ${freqs[primary]}%)`
-      : `said ${got}, chart says ${primary}`,
-  };
-}
-
-const GRADERS = { equity: gradeEquity, icm: gradeIcm, range: gradeRange };
-
 /** Grade one case against one raw reply. */
-export function grade(kase, replyText) {
-  const grader = GRADERS[kase.type];
-  if (!grader) throw new Error(`no grader for case type ${kase.type}`);
-  const parsed = parseAnswer(kase, replyText);
+export function grade(suite, kase, replyText) {
+  const task = suite.tasks[kase.type];
+  if (!task) throw new Error(`no grader for case type ${kase.type}`);
+  const parsed = parseAnswer(suite, kase, replyText);
   if (parsed.error) return unparseable(kase, parsed);
-  return grader(kase, parsed);
+  return {
+    id: kase.id,
+    type: kase.type,
+    recovered: parsed.recovered,
+    ...task.grade(kase, parsed.value),
+  };
 }
 
 /**
@@ -143,8 +68,8 @@ function errorKindOf(row) {
  * used to be graded as an unreadable reply, which is how a run against an
  * account with no credits once came out as "0/75, unreadable x75".
  */
-export function gradeRow(kase, row) {
-  return { ...gradeReply(kase, row), ...toolUse(row) };
+export function gradeRow(suite, kase, row) {
+  return { ...gradeReply(suite, kase, row), ...toolUse(row) };
 }
 
 /**
@@ -159,8 +84,8 @@ function toolUse(row) {
   };
 }
 
-function gradeReply(kase, row) {
-  if (!row.error) return grade(kase, row.text);
+function gradeReply(suite, kase, row) {
+  if (!row.error) return grade(suite, kase, row.text);
   const kind = errorKindOf(row);
   return {
     id: kase.id,
@@ -175,13 +100,6 @@ function gradeReply(kase, row) {
   };
 }
 
-/**
- * Roll a list of graded results into the numbers a report shows.
- *
- * Pass rate is reported per type as well as overall, because the types are not
- * comparable: a model can be strong on chart lookups and hopeless at equity
- * arithmetic, and one blended percentage would hide that completely.
- */
 /**
  * Tool use across a set of results, when the run had tools. The number that
  * matters most is the cases that *never* called one: a model that answers
@@ -199,6 +117,13 @@ function toolSummary(rows) {
   };
 }
 
+/**
+ * Roll a list of graded results into the numbers a report shows.
+ *
+ * Pass rate is reported per type as well as overall, because the types are not
+ * comparable: a model can be strong on chart lookups and hopeless at equity
+ * arithmetic, and one blended percentage would hide that completely.
+ */
 export function summarise(results) {
   const byType = new Map();
   for (const r of results) {

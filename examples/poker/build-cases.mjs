@@ -3,14 +3,14 @@
  * Writes the case file. Ground truth is computed here and frozen, so a score
  * today and a score next year mean the same thing.
  *
- *   node bin/build-cases.mjs [out]
+ *   node examples/poker/build-cases.mjs [out]
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { EQUITY_SPECS, ICM_SPECS, RANGE_SPECS } from '../src/cases/specs.js';
-import { buildEquityCases, buildIcmCases, buildRangeCases, auditCases } from '../src/cases/build.js';
+import { EQUITY_SPECS, ICM_SPECS, RANGE_SPECS } from './cases/specs.js';
+import { buildEquityCases, buildIcmCases, buildRangeCases, auditCases } from './cases/build.js';
 
-const out = resolve(process.argv[2] ?? 'cases/v1.jsonl');
+const out = resolve(process.argv[2] ?? 'examples/poker/cases/v1.jsonl');
 
 const started = Date.now();
 const cases = [

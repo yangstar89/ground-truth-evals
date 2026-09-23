@@ -5,82 +5,35 @@ import { createOpenAIRunner, createAnthropicRunner, TruncatedError } from './api
 import { mapLimit, postJson, isFatal, HttpError } from './http.js';
 import { renderMarkdown, renderLine } from '../report.js';
 import { grade, summarise } from '../graders/index.js';
-import { RANGES } from '../oracle/ranges.js';
+import { demoSuite } from '../fixtures/demo-suite.js';
 
-const equityCase = {
-  id: 'eq-001', type: 'equity', tag: 'premium-vs-premium', hero: 'AcAd',
-  board: '', opponents: ['KcKd'], numOpponents: 0, expected: 0.8261, tolerancePct: 2.5,
-};
-const icmCase = {
-  id: 'icm-001', type: 'icm', tag: 'even-three', stacks: [3000, 3000, 3000],
-  payouts: [500, 300, 200], currency: 'USD', expected: [333.33, 333.33, 333.33], tolerance: 20,
-};
-const rangeCase = {
-  id: 'rg-001', type: 'range', tag: 'premium', position: 'UTG', scenario: 'RFI',
-  scenarioLabel: 'Raise First In', hand: 'AA', entry: RANGES.UTG.RFI.AA,
-};
+// Tagged copies of the fixture cases: the report groups by tag, and a run
+// needs more than one task type for the per-type sections to mean anything.
+const sumCase = { id: 'sum-001', type: 'sum', tag: 'small', a: 2, b: 3, expected: 5, tolerance: 0.5 };
+const splitCase = { id: 'split-001', type: 'split', tag: 'three-ways', total: 100, ways: 3, expected: [40, 35, 25], tolerance: 2 };
+const sumCase2 = { id: 'sum-002', type: 'sum', tag: 'small', a: 10, b: 11, expected: 21, tolerance: 0.5 };
 
 describe('stub runner', () => {
   it('needs no credentials', () => {
-    expect(() => createRunner('stub')).not.toThrow();
+    expect(() => createRunner(demoSuite, 'stub')).not.toThrow();
   });
 
-  it('answers the same way twice for a seed, and differently for another', async () => {
-    const a = createStubRunner({ seed: 4 });
-    const b = createStubRunner({ seed: 4 });
-    const c = createStubRunner({ seed: 5 });
-    expect((await a.complete(equityCase)).text).toBe((await b.complete(equityCase)).text);
-    // Across a set of cases at least one answer must differ, or the seed does nothing.
-    const cases = [equityCase, icmCase, rangeCase];
-    const textsA = [];
-    const textsC = [];
-    for (const k of cases) {
-      textsA.push((await a.complete(k)).text);
-      textsC.push((await c.complete(k)).text);
-    }
-    expect(textsA.join('|')).not.toBe(textsC.join('|'));
-  });
-
-  it('produces replies the graders can actually read', async () => {
-    const runner = createStubRunner({ seed: 1, skill: 1 });
-    for (const kase of [equityCase, icmCase, rangeCase]) {
-      const { text } = await runner.complete(kase);
-      expect(grade(kase, text).unparseable).not.toBe(true);
-    }
-  });
-
-  it('gets better as skill rises', async () => {
-    const cases = Array.from({ length: 40 }, (_, i) => ({ ...equityCase, id: `eq-${i}` }));
-    const rate = async (skill) => {
-      const runner = createStubRunner({ seed: 9, skill });
-      const results = [];
-      for (const k of cases) results.push(grade(k, (await runner.complete(k)).text));
-      return summarise(results).overall.passRate;
-    };
-    expect(await rate(0.95)).toBeGreaterThan(await rate(0.4));
-  });
-
-  it('chip-chops on ICM when it goes wrong, which is the mistake worth catching', async () => {
-    // skill 0 forces the wrong branch every time.
-    const runner = createStubRunner({ seed: 2, skill: 0 });
-    const kase = { ...icmCase, stacks: [8000, 1000, 1000], expected: [434.7, 282.6, 282.6] };
-    const { text } = await runner.complete(kase);
-    const said = JSON.parse(text).icm ?? [];
-    // A chip chop of an 80% stack against a 1000 pool is 800, far above true ICM.
-    expect(said[0]).toBeGreaterThan(700);
+  it('refuses a suite with no stub rather than inventing replies', () => {
+    const { stub, ...noStub } = demoSuite;
+    expect(() => createRunner(noStub, 'stub')).toThrow(/has no stub/);
   });
 });
 
 describe('createRunner', () => {
   it('rejects a provider it does not know', () => {
-    expect(() => createRunner('mistral:large')).toThrow(/unknown runner/);
+    expect(() => createRunner(demoSuite, 'mistral:large')).toThrow(/unknown runner/);
   });
 
   it('refuses to build an api runner with no key, rather than calling without one', () => {
     const saved = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
     try {
-      expect(() => createRunner('openai:gpt-4o-mini')).toThrow(/OPENAI_API_KEY/);
+      expect(() => createRunner(demoSuite, 'openai:gpt-4o-mini')).toThrow(/OPENAI_API_KEY/);
     } finally {
       if (saved !== undefined) process.env.OPENAI_API_KEY = saved;
     }
@@ -105,24 +58,24 @@ describe('api runners and models that reject temperature', () => {
   }
 
   const adapters = [
-    ['openai', () => createOpenAIRunner({ apiKey: 'test' }), { choices: [{ message: { content: '{"equity":82}' } }] }],
-    ['anthropic', () => createAnthropicRunner({ apiKey: 'test' }), { content: [{ type: 'text', text: '{"equity":82}' }] }],
+    ['openai', () => createOpenAIRunner({ apiKey: 'test' }), { choices: [{ message: { content: '{"total":5}' } }] }],
+    ['anthropic', () => createAnthropicRunner({ apiKey: 'test' }), { content: [{ type: 'text', text: '{"total":5}' }] }],
   ];
 
   for (const [name, make, okBody] of adapters) {
     it(`${name}: retries once without temperature instead of failing every case`, async () => {
       const sent = fakeApi(okBody);
       const runner = make();
-      const { text } = await runner.complete(equityCase, 'prompt');
-      expect(text).toBe('{"equity":82}');
+      const { text } = await runner.complete(sumCase, 'prompt');
+      expect(text).toBe('{"total":5}');
       expect(sent.map((b) => 'temperature' in b)).toEqual([true, false]);
     });
 
     it(`${name}: records null temperature afterwards, so the run file does not claim 0`, async () => {
       const sent = fakeApi(okBody);
       const runner = make();
-      await runner.complete(equityCase, 'prompt');
-      await runner.complete(equityCase, 'prompt');
+      await runner.complete(sumCase, 'prompt');
+      await runner.complete(sumCase, 'prompt');
       expect(runner.temperature).toBeNull();
       // The second case goes straight through, rather than paying for the 400 again.
       expect(sent.map((b) => 'temperature' in b)).toEqual([true, false, false]);
@@ -146,13 +99,13 @@ describe('api runners and models that reject temperature', () => {
         return new Response(JSON.stringify(okBody), { status: 200 });
       });
       const runner = make();
-      const replies = await Promise.all(Array.from({ length: 6 }, () => runner.complete(equityCase, 'prompt')));
-      expect(replies.map((r) => r.text)).toEqual(Array(6).fill('{"equity":82}'));
+      const replies = await Promise.all(Array.from({ length: 6 }, () => runner.complete(sumCase, 'prompt')));
+      expect(replies.map((r) => r.text)).toEqual(Array(6).fill('{"total":5}'));
     });
 
     it(`${name}: does not swallow a 400 that is about something else`, async () => {
       vi.stubGlobal('fetch', async () => new Response('{"error":{"message":"credit balance is too low"}}', { status: 400 }));
-      await expect(make().complete(equityCase, 'prompt')).rejects.toThrow(/credit balance/);
+      await expect(make().complete(sumCase, 'prompt')).rejects.toThrow(/credit balance/);
     });
   }
 
@@ -160,14 +113,14 @@ describe('api runners and models that reject temperature', () => {
   // as an unreadable answer that is then scored against the model.
   const truncated = [
     ['openai', () => createOpenAIRunner({ apiKey: 'test', temperature: null }),
-      { choices: [{ finish_reason: 'length', message: { content: '{"icm": [386.6667, 386.6667, 226.6' } }] }],
+      { choices: [{ finish_reason: 'length', message: { content: '{"shares": [40, 35, 22' } }] }],
     ['anthropic', () => createAnthropicRunner({ apiKey: 'test', temperature: null }),
       { stop_reason: 'max_tokens', content: [{ type: 'thinking', thinking: '' }] }],
   ];
   for (const [name, make, body] of truncated) {
     it(`${name}: a reply cut off at the output cap is an error, not a wrong answer`, async () => {
       vi.stubGlobal('fetch', async () => new Response(JSON.stringify(body), { status: 200 }));
-      await expect(make().complete(icmCase, 'prompt')).rejects.toThrow(TruncatedError);
+      await expect(make().complete(splitCase, 'prompt')).rejects.toThrow(TruncatedError);
     });
   }
 });
@@ -176,12 +129,12 @@ describe('the tool loop', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   /** A stand-in for an MCP connection: one tool, and a log of what it was asked. */
-  function fakeTools(reply = { text: '{"equity_pct": 82.6}', isError: false }) {
+  function fakeTools(reply = { text: '{"total": 5}', isError: false }) {
     const asked = [];
     return {
       asked,
       command: 'fake',
-      tools: [{ name: 'equity', description: 'exact equity', inputSchema: { type: 'object', properties: {} } }],
+      tools: [{ name: 'add', description: 'exact addition', inputSchema: { type: 'object', properties: {} } }],
       async call(name, args) {
         asked.push({ name, args });
         return reply;
@@ -200,27 +153,27 @@ describe('the tool loop', () => {
   }
 
   const openaiToolCall = (id = 'c1') => ({
-    choices: [{ finish_reason: 'tool_calls', message: { role: 'assistant', content: null, tool_calls: [{ id, type: 'function', function: { name: 'equity', arguments: '{"hero":"AcAd"}' } }] } }],
+    choices: [{ finish_reason: 'tool_calls', message: { role: 'assistant', content: null, tool_calls: [{ id, type: 'function', function: { name: 'add', arguments: '{"a":2,"b":3}' } }] } }],
     usage: { prompt_tokens: 10, completion_tokens: 5 },
   });
-  const openaiAnswer = { choices: [{ finish_reason: 'stop', message: { content: '{"equity_pct": 82.6}' } }], usage: { prompt_tokens: 20, completion_tokens: 6 } };
+  const openaiAnswer = { choices: [{ finish_reason: 'stop', message: { content: '{"total": 5}' } }], usage: { prompt_tokens: 20, completion_tokens: 6 } };
 
   const thinking = { type: 'thinking', thinking: '', signature: 'sig' };
   const anthropicToolCall = (id = 't1') => ({
     stop_reason: 'tool_use',
-    content: [thinking, { type: 'tool_use', id, name: 'equity', input: { hero: 'AcAd' } }],
+    content: [thinking, { type: 'tool_use', id, name: 'add', input: { a: 2, b: 3 } }],
     usage: { input_tokens: 10, output_tokens: 5 },
   });
-  const anthropicAnswer = { stop_reason: 'end_turn', content: [{ type: 'text', text: '{"equity_pct": 82.6}' }], usage: { input_tokens: 20, output_tokens: 6 } };
+  const anthropicAnswer = { stop_reason: 'end_turn', content: [{ type: 'text', text: '{"total": 5}' }], usage: { input_tokens: 20, output_tokens: 6 } };
 
   it('openai: runs the call, sends the result back, and returns the final answer with the call recorded', async () => {
     const tools = fakeTools();
     const bodies = scriptedApi([openaiToolCall(), openaiAnswer]);
-    const res = await createOpenAIRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt');
-    expect(res.text).toBe('{"equity_pct": 82.6}');
-    expect(tools.asked).toEqual([{ name: 'equity', args: { hero: 'AcAd' } }]);
+    const res = await createOpenAIRunner({ apiKey: 'test', temperature: null, tools }).complete(sumCase, 'prompt');
+    expect(res.text).toBe('{"total": 5}');
+    expect(tools.asked).toEqual([{ name: 'add', args: { a: 2, b: 3 } }]);
     expect(res.toolCalls).toHaveLength(1);
-    expect(bodies[1].messages.at(-1)).toEqual({ role: 'tool', tool_call_id: 'c1', content: '{"equity_pct": 82.6}' });
+    expect(bodies[1].messages.at(-1)).toEqual({ role: 'tool', tool_call_id: 'c1', content: '{"total": 5}' });
     // Usage covers both requests, or a with-tools run would look cheaper than it was.
     expect(res.usage).toMatchObject({ prompt_tokens: 30, completion_tokens: 11 });
   });
@@ -228,17 +181,17 @@ describe('the tool loop', () => {
   it('anthropic: runs the call and returns the turn intact, thinking blocks included', async () => {
     const tools = fakeTools();
     const bodies = scriptedApi([anthropicToolCall(), anthropicAnswer]);
-    const res = await createAnthropicRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt');
-    expect(res.text).toBe('{"equity_pct": 82.6}');
+    const res = await createAnthropicRunner({ apiKey: 'test', temperature: null, tools }).complete(sumCase, 'prompt');
+    expect(res.text).toBe('{"total": 5}');
     expect(bodies[1].messages[1]).toEqual({ role: 'assistant', content: anthropicToolCall().content });
-    expect(bodies[1].messages[2].content).toEqual([{ type: 'tool_result', tool_use_id: 't1', content: '{"equity_pct": 82.6}' }]);
+    expect(bodies[1].messages[2].content).toEqual([{ type: 'tool_result', tool_use_id: 't1', content: '{"total": 5}' }]);
     expect(res.usage).toMatchObject({ input_tokens: 30, output_tokens: 11 });
   });
 
   it('shows a failing tool to the model as an error it can correct, not a crash', async () => {
-    const tools = fakeTools({ text: 'duplicate card across hands and board', isError: true });
+    const tools = fakeTools({ text: 'a and b must be numbers', isError: true });
     const bodies = scriptedApi([anthropicToolCall(), anthropicAnswer]);
-    const res = await createAnthropicRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt');
+    const res = await createAnthropicRunner({ apiKey: 'test', temperature: null, tools }).complete(sumCase, 'prompt');
     expect(bodies[1].messages[2].content[0]).toMatchObject({ is_error: true });
     expect(res.toolCalls[0].isError).toBe(true);
   });
@@ -246,14 +199,14 @@ describe('the tool loop', () => {
   it('abandons a model that keeps calling tools, keeping the calls it made', async () => {
     const tools = fakeTools();
     scriptedApi(Array.from({ length: 20 }, (_, i) => openaiToolCall(`c${i}`)));
-    const err = await createOpenAIRunner({ apiKey: 'test', temperature: null, tools }).complete(equityCase, 'prompt').catch((e) => e);
+    const err = await createOpenAIRunner({ apiKey: 'test', temperature: null, tools }).complete(sumCase, 'prompt').catch((e) => e);
     expect(err).toBeInstanceOf(TruncatedError);
     expect(err.toolCalls.length).toBeGreaterThan(0);
   });
 
   it('sends no tools and records no tool calls on an unaided run', async () => {
     const bodies = scriptedApi([openaiAnswer]);
-    const res = await createOpenAIRunner({ apiKey: 'test', temperature: null }).complete(equityCase, 'prompt');
+    const res = await createOpenAIRunner({ apiKey: 'test', temperature: null }).complete(sumCase, 'prompt');
     expect(bodies[0].tools).toBeUndefined();
     expect(res.toolCalls).toBeUndefined();
   });
@@ -317,11 +270,11 @@ describe('mapLimit', () => {
 });
 
 describe('report', () => {
-  const cases = [equityCase, icmCase, rangeCase];
+  const cases = [sumCase, splitCase, sumCase2];
   const results = [
-    grade(equityCase, '{"equity_pct": 82.6}'),
-    grade(icmCase, '{"icm": [333.3, 333.3, 333.3]}'),
-    grade(rangeCase, '{"action": "fold"}'),
+    grade(demoSuite, sumCase, '{"total": 5}'),
+    grade(demoSuite, splitCase, '{"shares": [40, 35, 25]}'),
+    grade(demoSuite, sumCase2, '{"total": 40}'),
   ];
   const summary = summarise(results);
   const meta = { model: 'stub(test)', temperature: 0, durationMs: 1234 };
@@ -341,9 +294,8 @@ describe('report', () => {
     expect(md).toContain('## By task');
     expect(md).toContain('## By kind of spot');
     expect(md).toContain('## Failures (1)');
-    expect(md).toContain('| equity |');
-    expect(md).toContain('| icm |');
-    expect(md).toContain('| range |');
+    expect(md).toContain('| sum |');
+    expect(md).toContain('| split |');
   });
 
   it('marks thin tags, so a one-case rate is not read as a measurement', () => {
@@ -352,8 +304,8 @@ describe('report', () => {
 
   it('shows the failing case with its reason', () => {
     const md = renderMarkdown({ meta, summary, results, cases });
-    expect(md).toContain('rg-001');
-    expect(md).toContain('chart says raise');
+    expect(md).toContain('sum-002');
+    expect(md).toContain('truth 21.0');
   });
 
   it('includes a baseline section only when there is a baseline', () => {
@@ -362,7 +314,7 @@ describe('report', () => {
       meta, summary, results, cases,
       diff: {
         baselineName: 'b.json',
-        regressions: [{ id: 'eq-001', type: 'equity', detail: 'broke' }],
+        regressions: [{ id: 'sum-001', type: 'sum', detail: 'broke' }],
         fixes: [], only_in_current: [], only_in_baseline: [],
       },
     });

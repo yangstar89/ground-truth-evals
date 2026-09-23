@@ -6,16 +6,22 @@
 import { createStubRunner } from './stub.js';
 import { createOpenAIRunner, createAnthropicRunner } from './api.js';
 
-export function createRunner(spec, opts = {}) {
+export function createRunner(suite, spec, opts = {}) {
   const [provider, ...rest] = String(spec).split(':');
   const model = rest.join(':') || undefined;
+  const api = {
+    temperature: opts.temperature ?? 0,
+    tools: opts.tools ?? null,
+    // The suite sets the model's role; the adapters stay domain-free.
+    ...(suite?.systemPrompt ? { system: suite.systemPrompt } : {}),
+  };
   switch (provider) {
     case 'stub':
-      return createStubRunner({ seed: opts.seed ?? 1, skill: opts.skill ?? 0.8 });
+      return createStubRunner(suite, { seed: opts.seed ?? 1, skill: opts.skill ?? 0.8 });
     case 'openai':
-      return createOpenAIRunner({ ...(model ? { model } : {}), temperature: opts.temperature ?? 0, tools: opts.tools ?? null });
+      return createOpenAIRunner({ ...(model ? { model } : {}), ...api });
     case 'anthropic':
-      return createAnthropicRunner({ ...(model ? { model } : {}), temperature: opts.temperature ?? 0, tools: opts.tools ?? null });
+      return createAnthropicRunner({ ...(model ? { model } : {}), ...api });
     default:
       throw new Error(`unknown runner "${spec}"; expected stub, openai:<model> or anthropic:<model>`);
   }

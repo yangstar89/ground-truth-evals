@@ -20,7 +20,8 @@
  */
 import { postJson, HttpError } from './http.js';
 
-const SYSTEM = 'You are a precise poker calculator. Follow the output schema exactly.';
+/** Used when a suite sets no role of its own. */
+const DEFAULT_SYSTEM = 'You are a precise calculator. Follow the output schema exactly.';
 
 /**
  * Tool rounds allowed before a case is abandoned. Each case needs one call;
@@ -111,6 +112,7 @@ export function createOpenAIRunner({
   model = 'gpt-4o-mini',
   temperature = 0,
   tools = null,
+  system = DEFAULT_SYSTEM,
   apiKey = process.env.OPENAI_API_KEY,
   baseUrl = 'https://api.openai.com/v1',
 } = {}) {
@@ -141,7 +143,7 @@ export function createOpenAIRunner({
 
   async function call(prompt, withTemperature) {
     const messages = [
-      { role: 'system', content: SYSTEM },
+      { role: 'system', content: system },
       { role: 'user', content: prompt },
     ];
     const calls = [];
@@ -190,6 +192,7 @@ export function createOpenAIRunner({
 export function createAnthropicRunner({
   model = 'claude-sonnet-5',
   temperature = 0,
+  system = DEFAULT_SYSTEM,
   // Current models think by default, and thinking tokens count against this
   // cap. The answer itself is a line of JSON; the headroom is for the thinking.
   maxTokens = 16000,
@@ -219,7 +222,7 @@ export function createAnthropicRunner({
         model,
         max_tokens: maxTokens,
         ...(withTemperature ? { temperature } : {}),
-        system: SYSTEM,
+        system,
         ...(toolDefs ? { tools: toolDefs } : {}),
         messages,
       },

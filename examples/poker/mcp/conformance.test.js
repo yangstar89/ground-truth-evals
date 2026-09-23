@@ -26,7 +26,7 @@
  * SB, BB" - because a model can recover from that, and "invalid input"
  * wastes its turn. It is never a crash.
  *
- * Every case in cases/v1.jsonl is pushed through the real server over real
+ * Every case in examples/poker/cases/v1.jsonl is pushed through the real server over real
  * MCP and must reproduce the frozen ground truth. That is what the with-tools
  * run rests on: if the tools answer correctly, the run measures whether the
  * model can use them.
@@ -36,11 +36,11 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
-import { connectTools } from '../runners/tools.js';
+import { connectTools } from '../../../src/runners/tools.js';
 import { equity as oracleEquity } from '../oracle/equity.js';
 import { calculateICM } from '../oracle/icm.js';
 
-const SERVER = 'bin/mcp-server.mjs';
+const SERVER = 'examples/poker/mcp-server.mjs';
 
 const REQUIRED = ['poker_equity', 'poker_icm', 'poker_range_action'];
 const OPTIONAL = ['poker_hand_rank'];
@@ -50,7 +50,7 @@ const SCENARIOS = ['RFI', 'vsUTG', 'vsBTN'];
 /** A result is a handful of fields, not a dump. */
 const MAX_RESULT_CHARS = 500;
 
-const cases = readFileSync('cases/v1.jsonl', 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+const cases = readFileSync('examples/poker/cases/v1.jsonl', 'utf8').trim().split('\n').map((l) => JSON.parse(l));
 const ofType = (t) => cases.filter((c) => c.type === t);
 
 const equityArgs = (k) => ({
